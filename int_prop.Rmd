@@ -1,0 +1,21 @@
+---
+title: "Interactive Visualizaton Proposal"
+author: "Adam Shelton"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(Cairo)
+knitr::opts_chunk$set(echo = TRUE, dev = "cairo_pdf")
+options(device = Cairo::CairoPDF)
+```
+
+## Design
+![Design Concept](proposal.pdf)
+\ 
+
+On the left side there will be an overview of the highlighted demographic variable describing why it's an interesting and important variable to consider. On the right side will be a menu to switch between different demographic variables. Each of the demographic variables will show a histogram of their distribution when you select it, and show the alpha scale that will define it on the map. Scrolling will go to the next demographic variable in the menu, with an animation of the new demographic variable name and histogram expanding from its smaller form as just the title. At the top of the map will be the color scale for different measures of Internet access, that you can switch between, with a animation that moves the text, and makes it larger and darker. Below the scale for the measure of Internet access there will be a rug plot to show the distribution for that variable. A few interesting places will be highlighted on the map for each demographic variable. Clicking on one of these highlighted boxes will zoom to that area with different text on the left side fading into describe about that specific area, with perhaps some charts showing the data in a non-spatial way. At the bottom right, you can choose to see data at different levels of geographic area. When switching between the different levels of data with this element, the region will spill together or separate apart like water droplets. There is also a zoom button to zoom in manually, which could also be performed by holding down ctrl/cmd and scrolling.
+
+## Intent
+
+When making the static visualizations with this data, I really struggled to show the many different facets of inequality that broadband access can exacerbate without making an overwhelming amount of charts. I wanted to create an interactive visualization that conveyed an easy to understand overview of the data while giving powerful tools for more in-depth analysis to those who are so inclined. This is partly out of necessity, as I have even found it difficult to wade through all this data myself, so hopefully by building the initial interactive map interface I can discover some interesting relationships to highlight to ease viewers into the data.
