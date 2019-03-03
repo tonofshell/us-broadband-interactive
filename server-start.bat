@@ -1,1 +1,1 @@
-live-server --no-browser
+live-server

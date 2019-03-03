@@ -3,11 +3,95 @@
 <head>
 	<meta charset="utf-8">
 	<title>US Broadband</title>
-	<script type="text/javascript" src="js/d3.js"></script>
+	<script type="text/javascript" src="js/d3.min.js"></script>
+	<script type="text/javascript" src="js/bootstrap.min.js"></script>
 	<link href="style.css" rel="stylesheet" type="text/css">
 </head>
 <body onresize="updateView()">
-	<div class="map-wrapper" id="map-wrap"></div>
+	<div class="col-md-1">
+		<h1>Interactive Map of US Internet Access</h1>
+	</div>
+	<div class="left-wrapper col-md-2">
+		<h3>Variable on Color Scale</h3>
+		<select id ="colorSelect" onchange="changeVars()">
+			<option value="GEOID">GEOID</option>
+			<option value="avg_fam_inc">avg_fam_inc</option>
+			<option value="below_poverty">below_poverty</option>
+			<option value="broadband_any">broadband_any</option>
+			<option value="broadband_wired">broadband_wired</option>
+			<option value="broadband_wired_only">broadband_wired_only</option>
+			<option value="cell_inet">cell_inet</option>
+			<option value="cell_inet_only">cell_inet_only</option>
+			<option value="commute_time_car">commute_time_car</option>
+			<option value="commute_time_other">commute_time_other</option>
+			<option value="commute_time_pub_trans">commute_time_pub_trans</option>
+			<option value="commute_time_walk">commute_time_walk</option>
+			<option value="desktop_alone">desktop_alone</option>
+			<option value="dial_up_only">dial_up_only</option>
+			<option value="employed">employed</option>
+			<option value="female">female</option>
+			<option value="inet_w_sub">inet_w_sub</option>
+			<option value="inet_wo_sub">inet_wo_sub</option>
+			<option value="land_area">land_area</option>
+			<option value="med_age">med_age</option>
+			<option value="med_income">med_income</option>
+			<option value="month_housing_costs">month_housing_costs</option>
+			<option value="no_inet">no_inet</option>
+			<option value="other_comp_alone">other_comp_alone</option>
+			<option value="other_inet">other_inet</option>
+			<option value="pop_dens">pop_dens</option>
+			<option value="rmapshaperid">rmapshaperid</option>
+			<option value="satelite">satelite</option>
+			<option value="satelite_only">satelite_only</option>
+			<option value="smartphone_alone">smartphone_alone</option>
+			<option value="state">state</option>
+			<option value="subregion">subregion</option>
+			<option value="tablet_alone">tablet_alone</option>
+			<option value="total_pop">total_pop</option>
+			<option value="white">white</option>
+			<option value="work_outside_res_area">work_outside_res_area</option>
+		</select>
+		<h3>Variable on Alpha Scale</h3>
+		<select id ="alphaSelect" onchange="changeVars()">
+			<option value="GEOID">GEOID</option>
+			<option value="avg_fam_inc">avg_fam_inc</option>
+			<option value="below_poverty">below_poverty</option>
+			<option value="broadband_any">broadband_any</option>
+			<option value="broadband_wired">broadband_wired</option>
+			<option value="broadband_wired_only">broadband_wired_only</option>
+			<option value="cell_inet">cell_inet</option>
+			<option value="cell_inet_only">cell_inet_only</option>
+			<option value="commute_time_car">commute_time_car</option>
+			<option value="commute_time_other">commute_time_other</option>
+			<option value="commute_time_pub_trans">commute_time_pub_trans</option>
+			<option value="commute_time_walk">commute_time_walk</option>
+			<option value="desktop_alone">desktop_alone</option>
+			<option value="dial_up_only">dial_up_only</option>
+			<option value="employed">employed</option>
+			<option value="female">female</option>
+			<option value="inet_w_sub">inet_w_sub</option>
+			<option value="inet_wo_sub">inet_wo_sub</option>
+			<option value="land_area">land_area</option>
+			<option value="med_age">med_age</option>
+			<option value="med_income">med_income</option>
+			<option value="month_housing_costs">month_housing_costs</option>
+			<option value="no_inet">no_inet</option>
+			<option value="other_comp_alone">other_comp_alone</option>
+			<option value="other_inet">other_inet</option>
+			<option value="pop_dens">pop_dens</option>
+			<option value="rmapshaperid">rmapshaperid</option>
+			<option value="satelite">satelite</option>
+			<option value="satelite_only">satelite_only</option>
+			<option value="smartphone_alone">smartphone_alone</option>
+			<option value="state">state</option>
+			<option value="subregion">subregion</option>
+			<option value="tablet_alone">tablet_alone</option>
+			<option value="total_pop">total_pop</option>
+			<option value="white">white</option>
+			<option value="work_outside_res_area">work_outside_res_area</option>
+		</select>
+	</div>
+	<div class="map-wrapper col-md-6" id="map-wrap"></div>
 	
 	
 	<script type="text/javascript" src="script.js"></script>

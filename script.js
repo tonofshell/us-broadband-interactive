@@ -14,44 +14,74 @@ let getWidth = function() {
 }
 
 let updateMapSize = function(h, w) {
+	let hProp = (h - oldHeight) / oldHeight; 
+	let wProp = (w - oldWidth) / oldWidth;
 	mapSvg.transition(transInterval)
 		.attr("height", getHeight())
-		.attr("width", getWidth());
+		.attr("width", getWidth())
+		.selectAll("path")
+		;
 }
 
 let updateView = function() {
 	let h = getHeight();
 	let w = getWidth();
 	updateMapSize(h, w);
+	oldHeight = h;
+	oldWidth = w;
 }
 
-let changeMapColorVar = function(newVar) {
+let changeVars = function() {
+	let cSelector = document.getElementById("colorSelect");
+	let cValue = cSelector[cSelector.selectedIndex].value;
+	let aSelector = document.getElementById("alphaSelect");
+	let aValue = aSelector[aSelector.selectedIndex].value;
+	console.log(cValue + " " + aValue);
+	changeMapVars(cValue, aValue, false);
+}
+
+let changeMapVars = function(colorVar, alphaVar, scaleDefault) {
 	dataPromise.then(function(d){
-		let dMin = d3.min(d.features, function(dSub) {return dSub.properties[newVar]});
-		let dMax = d3.max(d.features, function(dSub) {return dSub.properties[newVar]});
-		let dMed = d3.median(d.features, function(dSub) {return dSub.properties[newVar]});
+		let dColorMin = d3.min(d.features, function(dSub) {return dSub.properties[colorVar]});
+		let dColorMax = d3.max(d.features, function(dSub) {return dSub.properties[colorVar]});
+		let dColorMed = d3.median(d.features, function(dSub) {return dSub.properties[colorVar]});
 		
-		console.log(newVar + ": range(" + dMin + ", " + dMed + ", " + dMax + ")");
-		let newVarScale = function(){return "rgb(0, 0, 0)"};
-		if (dMax <= 1 && dMax >= 0) {
-			newVarScale = d3.scaleLinear().domain([0, 0.5, 1]).range(["#EB5028", "#E6E673", "#0FA0F5"]);
+		let dAlphaMin = d3.min(d.features, function(dSub) {return dSub.properties[alphaVar]});
+		let dAlphaMax = d3.max(d.features, function(dSub) {return dSub.properties[alphaVar]});
+		
+		console.log(colorVar + ": range(" + dColorMin + ", " + dColorMed + ", " + dColorMax + ")");
+		let newColorScale = function(){return "rgba(0, 0, 0, 1)"};
+		let newAlphaScale = function(){return "1"};
+		
+		//scales percentages on scale of 0 - 1 if scaleDefault is true, otherwise percentages are scaled from min to max
+		if (scaleDefault && dColorMax <= 1 && dColorMax >= 0) {
+			newColorScale = d3.scaleLinear().domain([0, 0.5, 1]).range(["#EB5028", "#E6E673", "#0FA0F5"]);
 		} else {
-			newVarScale = d3.scaleLinear().domain([dMin, dMed, dMax]).range(["#EB5028", "#E6E673", "#0FA0F5"]);
+			newColorScale = d3.scaleLinear().domain([dColorMin, dColorMed, dColorMax]).range(["#EB5028", "#E6E673", "#0FA0F5"]);
 		}
 		
-		console.log(newVarScale(dMin) + " " + newVarScale(dMed) + " " + newVarScale(dMax));
+		if (scaleDefault && dAlphaMax <= 1 && dAlphaMin >= 0) {
+			newAlphaScale = d3.scaleLinear().domain([0, 1]).range([0.1, 1]);
+		} else {
+			newAlphaScale = d3.scaleLinear().domain([dAlphaMin, dAlphaMax]).range([0.1, 1]);
+		}		
+		
+		console.log(newColorScale(dColorMin) + " " + newColorScale(dColorMed) + " " + newColorScale(dColorMax));
+		console.log(newAlphaScale(dAlphaMin) + " " + newAlphaScale(dAlphaMax));
+		
 		mapSvg.selectAll('path')
 				.transition()
 				.duration(transInterval)
-				.ease(d3.easePolyInOut)
+				.ease(d3.easeCircleIn)
 				.style('fill', function(dSub) {
-					return newVarScale(dSub.properties[newVar]);
+					let colorVal = newColorScale(dSub.properties[colorVar]);
+					let alphaVal = newAlphaScale(dSub.properties[alphaVar]);
+					
+					let trimmedStr = "rgba" + colorVal.substring(3)
+					let rebuiltStr = trimmedStr.substring(0, trimmedStr.length - 1) + ", " + alphaVal + ")"
+					return rebuiltStr;
 		});
 	});
-}
-
-let changeMapAlphaVar = function(new_var) {
-	
 }
 
 //Scripted code
@@ -59,7 +89,10 @@ let changeMapAlphaVar = function(new_var) {
 	//Constants
 const mapProj = d3.geoAlbersUsa();
 const geoGenerator = d3.geoPath().projection(mapProj);
-const transInterval = 1000;
+const transInterval = 750;
+
+let oldHeight = getHeight();
+let oldWidth = getWidth();
 
 let mapSvg = d3.select('#map-wrap')
 	.append("svg")
