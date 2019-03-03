@@ -118,7 +118,11 @@ dataPromise.then(function(geoData) {
 				.append('path')
 				.attr('d', geoGenerator)
 /*				.attr('vector-effect', 'non-scaling-stroke')*/
-				.style('fill', "#C8DCC8")
+				.style('fill', "#C8DCC8");
+			
+			document.getElementById("colorSelect").value = "no_inet";
+			document.getElementById("alphaSelect").value = "below_poverty";
+			changeVars();			
 		}
 	});
 
