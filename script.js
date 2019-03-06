@@ -32,11 +32,19 @@ let mapPath = function() {
 }
 
 let updateMapSize = function(h, w) {
-	mapSvg.transition(transInterval)
+	mapSvg.transition(transInterval / 5)
 		.attr("height", getHeight())
 		.attr("width", getWidth())
 		.selectAll("path")
 		.attr('d', mapPath());
+	
+	mapSvg.select("#color-legend")
+		.transition(transInterval / 5)
+		.attr("transform", "translate(" + ((w * colorLegPos) - (legendSegmentWidth / 2 * 5) ) + ", " + (h * legendHPos) + ")" );
+	
+	mapSvg.select("#alpha-legend")
+		.transition(transInterval / 5)
+		.attr("transform", "translate(" + ((w * alphaLegPos) - (legendSegmentWidth / 2 * 5) ) + ", " + (h * legendHPos) + ")" );
 }
 
 let updateView = function() {
@@ -60,12 +68,24 @@ let changeMapVars = function(colorVar, alphaVar, scaleDefault) {
 	dataPromise.then(function(d){
 		let dColorMin = d3.min(d.features, function(dSub) {return dSub.properties[colorVar]});
 		let dColorMax = d3.max(d.features, function(dSub) {return dSub.properties[colorVar]});
-		let dColorMed = d3.median(d.features, function(dSub) {return dSub.properties[colorVar]});
+		/*let dColorMed = d3.median(d.features, function(dSub) {return dSub.properties[colorVar]});
+		let dColorLower = d3.median(d.features, function(dSub) {
+			let curVal = dSub.properties[colorVar]
+			if	(curVal	< dColorMed) {
+				return curVal
+			} 
+		});
+		let dColorUpper = d3.median(d.features, function(dSub) {
+			let curVal = dSub.properties[colorVar]
+			if	(curVal	> dColorMed) {
+				return curVal
+			} 
+		});*/
 		
 		let dAlphaMin = d3.min(d.features, function(dSub) {return dSub.properties[alphaVar]});
 		let dAlphaMax = d3.max(d.features, function(dSub) {return dSub.properties[alphaVar]});
 		
-		console.log(colorVar + ": range(" + dColorMin + ", " + dColorMed + ", " + dColorMax + ")");
+		//console.log(colorVar + ": range(" + dColorMin + ", " + dColorLower + ", " + dColorMed + ", " + dColorUpper + ", " + dColorMax + ")");
 		
 		// define some scale variables
 		let newColorScale = function(){return "rgba(0, 0, 0, 1)"};
@@ -81,20 +101,21 @@ let changeMapVars = function(colorVar, alphaVar, scaleDefault) {
 		}*/
 
 		if (scaleDefault && dColorMax <= 1 && dColorMax >= 0) {
-			newColorScale = d3.scaleLinear().domain([0, 1]).range(["#EB5028", "#000"]).unknown("#fff");
+			newColorScale = d3.scaleQuantize().domain([0, 1]).range(["rgb(235, 80, 40)", "rgb(255, 120, 55)", "rgb(255, 215, 70)", "rgb(30, 210, 215)", "rgb(15, 160, 245)"]).unknown("#fff");
 		} else {
-			newColorScale = d3.scaleLinear().domain([dColorMin, dColorMax]).range(["#EB5028", "#000"]).unknown("#fff");
+			newColorScale = d3.scaleQuantize().domain([dColorMin, dColorMax]).range(["rgb(235, 80, 40)", "rgb(255, 120, 55)", "rgb(255, 215, 70)", "rgb(30, 210, 215)", "rgb(15, 160, 245)"]).unknown("#fff");
 		}
 		
 		if (scaleDefault && dAlphaMax <= 1 && dAlphaMin >= 0) {
-			newAlphaScale = d3.scaleLinear().domain([0, 1]).range([0.2, 1]).unknown(0);
-			alphaLegendScale = d3.scaleLinear().domain([0, 1]).range(["rgba(0, 0, 0, 0.2)", "rgba(0, 0, 0, 1)"]).unknown(0)
+			newAlphaScale = d3.scaleQuantize().domain([0, 1]).range([0.2, 0.4, 0.6, 0.8, 1]).unknown(0);
+			alphaLegendScale = d3.scaleQuantize().domain([0, 1]).range(["rgba(0, 0, 0, 0.2)", "rgba(0, 0, 0, 0.4)", "rgba(0, 0, 0, 0.6)", "rgba(0, 0, 0, 0.8)", "rgba(0, 0, 0, 1)"]).unknown(0)
 		} else {
-			newAlphaScale = d3.scaleLinear().domain([dAlphaMin, dAlphaMax]).range([0.2, 1]).unknown(0);
-			alphaLegendScale = d3.scaleLinear().domain([dAlphaMin, dAlphaMax]).range(["rgba(0, 0, 0, 0.2)", "rgba(0, 0, 0, 1)"]).unknown(0)
+			newAlphaScale = d3.scaleQuantize().domain([dAlphaMin, dAlphaMax]).range([0.2, 0.4, 0.6, 0.8, 1]).unknown(0);
+			alphaLegendScale = d3.scaleQuantize().domain([dAlphaMin, dAlphaMax]).range(["rgba(0, 0, 0, 0.2)", "rgba(0, 0, 0, 0.4)", "rgba(0, 0, 0, 0.6)", "rgba(0, 0, 0, 0.8)", "rgba(0, 0, 0, 1)"]).unknown(0)
 		}		
 		
-		console.log(newColorScale(dColorMin) + " " + newColorScale(dColorMed) + " " + newColorScale(dColorMax));
+		console.log(newColorScale.thresholds())
+//		console.log(newColorScale(dColorMin) + " " + newColorScale(dColorMed) + " " + newColorScale(dColorMax));
 		console.log(newAlphaScale(dAlphaMin) + " " + newAlphaScale(dAlphaMax));
 		
 		// show data on chloropleth
@@ -118,23 +139,41 @@ let changeMapVars = function(colorVar, alphaVar, scaleDefault) {
 					return rebuiltStr;
 		});
 		
+		let colorLabels = newColorScale.thresholds();
+		colorLabels.push(dColorMax);
+		colorLabels = colorLabels.map(function(each_element){
+    		return Number(each_element.toFixed(2));
+		});
+		console.log(colorLabels);
+		
+		let alphaLabels = newAlphaScale.thresholds();
+		alphaLabels.push(dAlphaMax);
+		alphaLabels = alphaLabels.map(function(each_element){
+    		return Number(each_element.toFixed(2));
+		});
+		console.log(alphaLabels);
+		
 		// make some legends
 		let colorLegend = d3.legendColor()
-			.shapeWidth(50)
+			.shapeWidth(legendSegmentWidth)
 			.shapePadding(0)
 			.labelFormat(d3.format(".2f"))
 			.scale(newColorScale)
-			.orient('horizontal');
+			.orient('horizontal')
+			.labels(colorLabels)
+			.labelAlign("end");
 
 		mapSvg.select("#color-legend")
 			.call(colorLegend);
 		
 		let alphaLegend =  d3.legendColor()
-			.shapeWidth(40)
+			.shapeWidth(legendSegmentWidth)
 			.shapePadding(0)
 			.labelFormat(d3.format(".2f"))
 			.scale(alphaLegendScale)
-			.orient('horizontal');
+			.orient('horizontal')
+			.labels(alphaLabels)
+			.labelAlign("end");
 		
 		mapSvg.select("#alpha-legend")
 			.call(alphaLegend);
@@ -146,6 +185,10 @@ let changeMapVars = function(colorVar, alphaVar, scaleDefault) {
 
 	//Constants
 const transInterval = 750;
+const legendSegmentWidth = 60;
+const colorLegPos = 0.3;
+const alphaLegPos = (1 - colorLegPos);
+const legendHPos = 0.1;
 
 let mapSvg = d3.select('#map-wrap')
 	.append("svg")
@@ -179,11 +222,11 @@ dataPromise.then(function(geoData) {
 			// append g elements for future legends
 			mapSvg.append("g")
 				.attr("id", "color-legend")
-				.attr("transform", "translate(" + (getWidth() * 0.5) + ", " + (getHeight() * 0.1) + ")" );
+				.attr("transform", "translate(" + ((getWidth() * colorLegPos) - (legendSegmentWidth / 2 * 5) ) + ", " + (getHeight() * legendHPos) + ")" );
 			
 			mapSvg.append("g")
 				.attr("id", "alpha-legend")
-				.attr("transform", "translate(" + (getWidth() * 0.70) + ", " + (getHeight() * 0.70) + ")" );
+				.attr("transform", "translate(" + ((getWidth() * alphaLegPos) - (legendSegmentWidth  / 2 * 5) ) + ", " + (getHeight() * legendHPos) + ")" );
 			
 			// select initial variables to show
 			document.getElementById("colorSelect").value = "no_inet";
