@@ -13,14 +13,30 @@ let getWidth = function() {
 	return wid;
 }
 
+let mapPath = function() {
+	let hScale = getHeight() / 1000 * 1900;
+	let wScale = getWidth() / 875 * 1200;
+	let centerH = getHeight() / 2;
+	let centerW = getWidth() / 2;
+	
+	let finScale = 0;
+	if (hScale < wScale) {
+		finScale = hScale;
+	} else {
+		finScale = wScale
+	}
+	
+	console.log("Map scale: " + finScale)
+	let mapProj = d3.geoAlbersUsa().scale([finScale]).translate([centerW, centerH]);
+	return d3.geoPath().projection(mapProj);
+}
+
 let updateMapSize = function(h, w) {
-	let hProp = (h - oldHeight) / oldHeight; 
-	let wProp = (w - oldWidth) / oldWidth;
 	mapSvg.transition(transInterval)
 		.attr("height", getHeight())
 		.attr("width", getWidth())
 		.selectAll("path")
-		;
+		.attr('d', mapPath());
 }
 
 let updateView = function() {
@@ -54,16 +70,22 @@ let changeMapVars = function(colorVar, alphaVar, scaleDefault) {
 		let newAlphaScale = function(){return "1"};
 		
 		//scales percentages on scale of 0 - 1 if scaleDefault is true, otherwise percentages are scaled from min to max
-		if (scaleDefault && dColorMax <= 1 && dColorMax >= 0) {
-			newColorScale = d3.scaleLinear().domain([0, 0.5, 1]).range(["#EB5028", "#E6E673", "#0FA0F5"]);
+		/*if (scaleDefault && dColorMax <= 1 && dColorMax >= 0) {
+			newColorScale = d3.scaleLinear().domain([0, 0.5, 1]).range(["#EB5028", "#E6E673", "#0FA0F5"]).unknown("#000");
 		} else {
-			newColorScale = d3.scaleLinear().domain([dColorMin, dColorMed, dColorMax]).range(["#EB5028", "#E6E673", "#0FA0F5"]);
+			newColorScale = d3.scaleLinear().domain([dColorMin, dColorMed, dColorMax]).range(["#EB5028", "#E6E673", "#0FA0F5"]).unknown("#000");
+		}*/
+
+		if (scaleDefault && dColorMax <= 1 && dColorMax >= 0) {
+			newColorScale = d3.scaleLinear().domain([0, 1]).range(["#EB5028", "#000"]).unknown("#fff");
+		} else {
+			newColorScale = d3.scaleLinear().domain([dColorMin, dColorMax]).range(["#EB5028", "#000"]).unknown("#fff");
 		}
 		
 		if (scaleDefault && dAlphaMax <= 1 && dAlphaMin >= 0) {
-			newAlphaScale = d3.scaleLinear().domain([0, 1]).range([0.1, 1]);
+			newAlphaScale = d3.scaleLinear().domain([0, 1]).range([0.2, 1]).unknown(0);
 		} else {
-			newAlphaScale = d3.scaleLinear().domain([dAlphaMin, dAlphaMax]).range([0.1, 1]);
+			newAlphaScale = d3.scaleLinear().domain([dAlphaMin, dAlphaMax]).range([0.2, 1]).unknown(0);
 		}		
 		
 		console.log(newColorScale(dColorMin) + " " + newColorScale(dColorMed) + " " + newColorScale(dColorMax));
@@ -74,11 +96,18 @@ let changeMapVars = function(colorVar, alphaVar, scaleDefault) {
 				.duration(transInterval)
 				.ease(d3.easeCircleIn)
 				.style('fill', function(dSub) {
-					let colorVal = newColorScale(dSub.properties[colorVar]);
-					let alphaVal = newAlphaScale(dSub.properties[alphaVar]);
+					let colorVal = dSub.properties[colorVar];
+					let alphaVal = dSub.properties[alphaVar];
+
+					if (colorVar == "NA" || alphaVal == "NA") {
+						return "rgba(240, 240 , 240, 1)";
+					}
+			
+					let color = newColorScale(colorVal);
+					let alpha = newAlphaScale(alphaVal);
 					
-					let trimmedStr = "rgba" + colorVal.substring(3)
-					let rebuiltStr = trimmedStr.substring(0, trimmedStr.length - 1) + ", " + alphaVal + ")"
+					let trimmedStr = "rgba" + color.substring(3)
+					let rebuiltStr = trimmedStr.substring(0, trimmedStr.length - 1) + ", " + alpha + ")"
 					return rebuiltStr;
 		});
 	});
@@ -87,12 +116,7 @@ let changeMapVars = function(colorVar, alphaVar, scaleDefault) {
 //Scripted code
 
 	//Constants
-const mapProj = d3.geoAlbersUsa();
-const geoGenerator = d3.geoPath().projection(mapProj);
 const transInterval = 750;
-
-let oldHeight = getHeight();
-let oldWidth = getWidth();
 
 let mapSvg = d3.select('#map-wrap')
 	.append("svg")
@@ -116,7 +140,7 @@ dataPromise.then(function(geoData) {
 				.data(geoData.features)
 				.enter()
 				.append('path')
-				.attr('d', geoGenerator)
+				.attr('d', mapPath())
 /*				.attr('vector-effect', 'non-scaling-stroke')*/
 				.style('fill', "#C8DCC8");
 			
