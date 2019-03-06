@@ -66,9 +66,13 @@ let changeMapVars = function(colorVar, alphaVar, scaleDefault) {
 		let dAlphaMax = d3.max(d.features, function(dSub) {return dSub.properties[alphaVar]});
 		
 		console.log(colorVar + ": range(" + dColorMin + ", " + dColorMed + ", " + dColorMax + ")");
+		
+		// define some scale variables
 		let newColorScale = function(){return "rgba(0, 0, 0, 1)"};
 		let newAlphaScale = function(){return "1"};
+		let alphaLegendScale = function(){return "rgba(0, 0, 0, 1)"}
 		
+		// actually make the scales
 		//scales percentages on scale of 0 - 1 if scaleDefault is true, otherwise percentages are scaled from min to max
 		/*if (scaleDefault && dColorMax <= 1 && dColorMax >= 0) {
 			newColorScale = d3.scaleLinear().domain([0, 0.5, 1]).range(["#EB5028", "#E6E673", "#0FA0F5"]).unknown("#000");
@@ -84,13 +88,16 @@ let changeMapVars = function(colorVar, alphaVar, scaleDefault) {
 		
 		if (scaleDefault && dAlphaMax <= 1 && dAlphaMin >= 0) {
 			newAlphaScale = d3.scaleLinear().domain([0, 1]).range([0.2, 1]).unknown(0);
+			alphaLegendScale = d3.scaleLinear().domain([0, 1]).range(["rgba(0, 0, 0, 0.2)", "rgba(0, 0, 0, 1)"]).unknown(0)
 		} else {
 			newAlphaScale = d3.scaleLinear().domain([dAlphaMin, dAlphaMax]).range([0.2, 1]).unknown(0);
+			alphaLegendScale = d3.scaleLinear().domain([dAlphaMin, dAlphaMax]).range(["rgba(0, 0, 0, 0.2)", "rgba(0, 0, 0, 1)"]).unknown(0)
 		}		
 		
 		console.log(newColorScale(dColorMin) + " " + newColorScale(dColorMed) + " " + newColorScale(dColorMax));
 		console.log(newAlphaScale(dAlphaMin) + " " + newAlphaScale(dAlphaMax));
 		
+		// show data on chloropleth
 		mapSvg.selectAll('path')
 				.transition()
 				.duration(transInterval)
@@ -110,6 +117,28 @@ let changeMapVars = function(colorVar, alphaVar, scaleDefault) {
 					let rebuiltStr = trimmedStr.substring(0, trimmedStr.length - 1) + ", " + alpha + ")"
 					return rebuiltStr;
 		});
+		
+		// make some legends
+		let colorLegend = d3.legendColor()
+			.shapeWidth(50)
+			.shapePadding(0)
+			.labelFormat(d3.format(".2f"))
+			.scale(newColorScale)
+			.orient('horizontal');
+
+		mapSvg.select("#color-legend")
+			.call(colorLegend);
+		
+		let alphaLegend =  d3.legendColor()
+			.shapeWidth(40)
+			.shapePadding(0)
+			.labelFormat(d3.format(".2f"))
+			.scale(alphaLegendScale)
+			.orient('horizontal');
+		
+		mapSvg.select("#alpha-legend")
+			.call(alphaLegend);
+		
 	});
 }
 
@@ -120,14 +149,16 @@ const transInterval = 750;
 
 let mapSvg = d3.select('#map-wrap')
 	.append("svg")
-	.attr("height", getHeight)
-	.attr("width", getWidth);
+	.attr("height", getHeight())
+	.attr("width", getWidth());
 
 	//Get the party started
 	//Promise some data
 let dataPromise = d3.json("acs_geo_data_simp.geojson")
 	
-	
+
+// Link the data to the visualiation
+// and draw initial elements on SVG
 dataPromise.then(function(geoData) {
 		//Check that data loaded
 		if (geoData == null) {
@@ -135,7 +166,8 @@ dataPromise.then(function(geoData) {
 		} else {
 			console.log("Data loaded");
 			console.log(geoData);
-			
+		
+			// append paths with no data to SVG
 			mapSvg.selectAll('path')
 				.data(geoData.features)
 				.enter()
@@ -144,6 +176,16 @@ dataPromise.then(function(geoData) {
 /*				.attr('vector-effect', 'non-scaling-stroke')*/
 				.style('fill', "#C8DCC8");
 			
+			// append g elements for future legends
+			mapSvg.append("g")
+				.attr("id", "color-legend")
+				.attr("transform", "translate(" + (getWidth() * 0.5) + ", " + (getHeight() * 0.1) + ")" );
+			
+			mapSvg.append("g")
+				.attr("id", "alpha-legend")
+				.attr("transform", "translate(" + (getWidth() * 0.70) + ", " + (getHeight() * 0.70) + ")" );
+			
+			// select initial variables to show
 			document.getElementById("colorSelect").value = "no_inet";
 			document.getElementById("alphaSelect").value = "below_poverty";
 			changeVars();			
