@@ -3,13 +3,13 @@
 //Functions
 let getHeight = function() {
 	let hei = document.getElementById('map-wrap').offsetHeight;
-	console.log("Current height: " + hei);
+//	console.log("Current height: " + hei);
 	return hei;
 }
 
 let getWidth = function() {
 	let wid = document.getElementById('map-wrap').offsetWidth;
-	console.log("Current width: " + wid);
+//	console.log("Current width: " + wid);
 	return wid;
 }
 
@@ -26,9 +26,13 @@ let mapPath = function() {
 		finScale = wScale
 	}
 	
-	console.log("Map scale: " + finScale)
+//	console.log("Map scale: " + finScale)
 	let mapProj = d3.geoAlbersUsa().scale([finScale]).translate([centerW, centerH]);
 	return d3.geoPath().projection(mapProj);
+}
+
+let histogramScale = function(data, range) {
+	let hist = d3.hist
 }
 
 let updateMapSize = function(h, w) {
@@ -68,29 +72,16 @@ let changeMapVars = function(colorVar, alphaVar, scaleDefault) {
 	dataPromise.then(function(d){
 		let dColorMin = d3.min(d.features, function(dSub) {return dSub.properties[colorVar]});
 		let dColorMax = d3.max(d.features, function(dSub) {return dSub.properties[colorVar]});
-		/*let dColorMed = d3.median(d.features, function(dSub) {return dSub.properties[colorVar]});
-		let dColorLower = d3.median(d.features, function(dSub) {
-			let curVal = dSub.properties[colorVar]
-			if	(curVal	< dColorMed) {
-				return curVal
-			} 
-		});
-		let dColorUpper = d3.median(d.features, function(dSub) {
-			let curVal = dSub.properties[colorVar]
-			if	(curVal	> dColorMed) {
-				return curVal
-			} 
-		});*/
 		
 		let dAlphaMin = d3.min(d.features, function(dSub) {return dSub.properties[alphaVar]});
 		let dAlphaMax = d3.max(d.features, function(dSub) {return dSub.properties[alphaVar]});
 		
-		//console.log(colorVar + ": range(" + dColorMin + ", " + dColorLower + ", " + dColorMed + ", " + dColorUpper + ", " + dColorMax + ")");
+		console.log(colorVar + ": range(" + dColorMin + ", " + dColorMax + ")");
 		
 		// define some scale variables
 		let newColorScale = function(){return "rgba(0, 0, 0, 1)"};
 		let newAlphaScale = function(){return "1"};
-		let alphaLegendScale = function(){return "rgba(0, 0, 0, 1)"}
+		let alphaLegendScale = function(){return "rgba(0, 0, 0, 1)"};
 		
 		// actually make the scales
 		//scales percentages on scale of 0 - 1 if scaleDefault is true, otherwise percentages are scaled from min to max
@@ -108,18 +99,18 @@ let changeMapVars = function(colorVar, alphaVar, scaleDefault) {
 		
 		if (scaleDefault && dAlphaMax <= 1 && dAlphaMin >= 0) {
 			newAlphaScale = d3.scaleQuantize().domain([0, 1]).range([0.2, 0.4, 0.6, 0.8, 1]).unknown(0);
-			alphaLegendScale = d3.scaleQuantize().domain([0, 1]).range(["rgba(0, 0, 0, 0.2)", "rgba(0, 0, 0, 0.4)", "rgba(0, 0, 0, 0.6)", "rgba(0, 0, 0, 0.8)", "rgba(0, 0, 0, 1)"]).unknown(0)
+			alphaLegendScale = d3.scaleQuantize().domain([0, 1]).range(["rgba(0, 0, 0, 0.2)", "rgba(0, 0, 0, 0.4)", "rgba(0, 0, 0, 0.6)", "rgba(0, 0, 0, 0.8)", "rgba(0, 0, 0, 1)"]).unknown(0);
 		} else {
 			newAlphaScale = d3.scaleQuantize().domain([dAlphaMin, dAlphaMax]).range([0.2, 0.4, 0.6, 0.8, 1]).unknown(0);
-			alphaLegendScale = d3.scaleQuantize().domain([dAlphaMin, dAlphaMax]).range(["rgba(0, 0, 0, 0.2)", "rgba(0, 0, 0, 0.4)", "rgba(0, 0, 0, 0.6)", "rgba(0, 0, 0, 0.8)", "rgba(0, 0, 0, 1)"]).unknown(0)
+			alphaLegendScale = d3.scaleQuantize().domain([dAlphaMin, dAlphaMax]).range(["rgba(0, 0, 0, 0.2)", "rgba(0, 0, 0, 0.4)", "rgba(0, 0, 0, 0.6)", "rgba(0, 0, 0, 0.8)", "rgba(0, 0, 0, 1)"]).unknown(0);
 		}		
 		
-		console.log(newColorScale.thresholds())
+		/*console.log(newColorScale.thresholds())*/
 //		console.log(newColorScale(dColorMin) + " " + newColorScale(dColorMed) + " " + newColorScale(dColorMax));
-		console.log(newAlphaScale(dAlphaMin) + " " + newAlphaScale(dAlphaMax));
+		/*console.log(newAlphaScale(dAlphaMin) + " " + newAlphaScale(dAlphaMax));*/
 		
 		// show data on chloropleth
-		mapSvg.selectAll('path')
+		mapSvg.select("#svg-map").selectAll('path')
 				.transition()
 				.duration(transInterval)
 				.ease(d3.easeCircleIn)
@@ -144,27 +135,111 @@ let changeMapVars = function(colorVar, alphaVar, scaleDefault) {
 		colorLabels = colorLabels.map(function(each_element){
     		return Number(each_element.toFixed(2));
 		});
-		console.log(colorLabels);
+/*		console.log(colorLabels);*/
 		
 		let alphaLabels = newAlphaScale.thresholds();
 		alphaLabels.push(dAlphaMax);
 		alphaLabels = alphaLabels.map(function(each_element){
     		return Number(each_element.toFixed(2));
 		});
-		console.log(alphaLabels);
+/*		console.log(alphaLabels);*/
 		
 		// make some legends
-		let colorLegend = d3.legendColor()
+		/*let colorLegend = d3.legendColor()
 			.shapeWidth(legendSegmentWidth)
 			.shapePadding(0)
 			.labelFormat(d3.format(".2f"))
 			.scale(newColorScale)
 			.orient('horizontal')
 			.labels(colorLabels)
-			.labelAlign("end");
+			.labelAlign("end")
+			.title(varNames[0][colorVar]);*/
+		
+		let legendW = 300;
+		let legendH = 50;
+		
+		let colorX = d3.scaleLinear()
+          .domain([dColorMin, dColorMax])
+          .rangeRound([0, legendW]);
+		
+		let colorY = d3.scaleLinear()
+				  .range([legendH, 10]);
 
-		mapSvg.select("#color-legend")
-			.call(colorLegend);
+// set the parameters for the histogram
+		let colorHist = d3.histogram()
+			.value(function(dSub) {
+				return dSub.properties[colorVar] })
+			.domain(colorX.domain())
+			.thresholds(colorX.ticks());
+		
+		let bins = colorHist(d.features);
+		console.log(bins);
+
+		// Scale the range of the data in the y domain
+  		colorY.domain([0, d3.max(bins, function(dSub) { 
+/*			console.log(dSub.length);*/
+			return dSub.length; })]);
+		
+		let colorLegend = mapSvg.select("#color-legend").selectAll("#bar").data(bins);
+		
+		colorLegend.exit()
+      		.attr("class", "exit")
+    		.transition()
+			.duration(transInterval)
+			.delay(function(d, i) { return i * 10; })
+      		.style("fill-opacity", 1e-6)
+      		.remove();
+		
+		colorLegend.attr("class", "update")
+      		.attr("x", 1)
+      		.style("fill-opacity", 1)
+    		.transition()
+			.duration(transInterval)
+      		.attr("transform", function(dBins) {
+			  return "translate(" + colorX(dBins.x0) + "," + colorY(dBins.length) + ")"; })
+			.attr("width", function(dBins) { return colorX(dBins.x1) - colorX(dBins.x0); })
+			.attr("height", function(dBins) { 
+/*				console.log(legendH - colorY(dBins.length));*/
+				return legendH - colorY(dBins.length) + 10; })
+			.attr("fill", function(dBins) {
+					//console.log(dBins.x1);
+					return newColorScale(dBins.x1);});
+
+
+		colorLegend.enter()
+			.append("rect")
+			.transition()
+			.duration(transInterval)
+			.delay(function(d, i) { return i * 10; })
+			.attr("class", "enter")
+			.attr("id", "bar")
+		  	.attr("x", 1)
+			.attr("transform", function(dBins) {
+			  return "translate(" + colorX(dBins.x0) + "," + colorY(dBins.length) + ")"; })
+			.attr("width", function(dBins) { return colorX(dBins.x1) - colorX(dBins.x0); })
+			.attr("height", function(dBins) { 
+/*				console.log(legendH - colorY(dBins.length));*/
+				return legendH - colorY(dBins.length) + 10; })
+			.attr("fill", function(dBins) {
+					//console.log(dBins.x1);
+					return newColorScale(dBins.x1);});
+
+  // add the x Axis
+		  mapSvg.select("#color-legend")
+			  .select("g")
+			  .transition()
+			  .duration(transInterval)
+			  .attr("transform", "translate(0," + (legendH + 10) + ")")
+			  .call(d3.axisBottom(colorX));
+
+		/*mapSvg.select("#color-legend")
+			.call(colorLegend);*/
+		
+// Add legend title		
+		mapSvg.select("#color-legend").select("#title")
+			.transition()
+			.duration(transInterval)
+			.text(varNames[0][colorVar]);
 		
 		let alphaLegend =  d3.legendColor()
 			.shapeWidth(legendSegmentWidth)
@@ -173,7 +248,8 @@ let changeMapVars = function(colorVar, alphaVar, scaleDefault) {
 			.scale(alphaLegendScale)
 			.orient('horizontal')
 			.labels(alphaLabels)
-			.labelAlign("end");
+			.labelAlign("end")
+			.title(varNames[0][alphaVar]);
 		
 		mapSvg.select("#alpha-legend")
 			.call(alphaLegend);
@@ -188,7 +264,10 @@ const transInterval = 750;
 const legendSegmentWidth = 60;
 const colorLegPos = 0.3;
 const alphaLegPos = (1 - colorLegPos);
-const legendHPos = 0.1;
+const legendHPos = 0.03;
+
+const varNames = [{"avg_fam_inc":"Average Family Income","below_poverty":"Percent Below Poverty Line","broadband_any":"Percent with Broadband","broadband_wired":"Percent with Wired Broadband","broadband_wired_only":"Percent with Only Wired Broadband","cell_inet":"Percent with Cellular Internet","cell_inet_only":"Percent with Only Cellular Internet","desktop_alone":"Percent with Only a Desktop","dial_up_only":"Percent with Only Dial Up","employed":"Percent Employed","female":"Percent Female","med_age":"Median Age","med_income":"Median Income","month_housing_costs":"Average Monthly Housing Cost","no_inet":"Percent with No Internet","pop_dens":"Population Density","satelite":"Percent with Satelite Internet","satelite_only":"Percent with Only Satelite Internet","smartphone_alone":"Percent with Only a Smartphone","tablet_alone":"Percent with Only a Tablet","white":"Percent White","work_outside_res_area":"Percent that Works Outside County"}];
+
 
 let mapSvg = d3.select('#map-wrap')
 	.append("svg")
@@ -197,8 +276,7 @@ let mapSvg = d3.select('#map-wrap')
 
 	//Get the party started
 	//Promise some data
-let dataPromise = d3.json("acs_geo_data_simp.geojson")
-	
+let dataPromise = d3.json("acs_geo_data_simp.geojson");	
 
 // Link the data to the visualiation
 // and draw initial elements on SVG
@@ -211,22 +289,35 @@ dataPromise.then(function(geoData) {
 			console.log(geoData);
 		
 			// append paths with no data to SVG
-			mapSvg.selectAll('path')
+			mapSvg.append("g")
+				.attr("id", "svg-map");
+			
+			mapSvg.select("#svg-map").selectAll('path')
 				.data(geoData.features)
 				.enter()
 				.append('path')
 				.attr('d', mapPath())
-/*				.attr('vector-effect', 'non-scaling-stroke')*/
 				.style('fill', "#C8DCC8");
 			
 			// append g elements for future legends
 			mapSvg.append("g")
 				.attr("id", "color-legend")
 				.attr("transform", "translate(" + ((getWidth() * colorLegPos) - (legendSegmentWidth / 2 * 5) ) + ", " + (getHeight() * legendHPos) + ")" );
+			mapSvg.select("#color-legend").append("g");
+			for(let i = 0; i < 12; i++) {
+				mapSvg.select("#color-legend").append("rect").attr("id", "bar");
+			}
+			mapSvg.select("#color-legend").append("text")
+				.attr("id", "title")
+				.attr("x", 5)
+				.attr("y", 5)
+			
 			
 			mapSvg.append("g")
 				.attr("id", "alpha-legend")
 				.attr("transform", "translate(" + ((getWidth() * alphaLegPos) - (legendSegmentWidth  / 2 * 5) ) + ", " + (getHeight() * legendHPos) + ")" );
+			
+			//mapSvg.select("#alpha-legend").append("rect").
 			
 			// select initial variables to show
 			document.getElementById("colorSelect").value = "no_inet";

@@ -16,9 +16,9 @@ urban_bb = read_csv2(here("Datasets", "US_Urban_Rate_Broadband_Survey.csv"))
 d3_test = tibble(dload_speed = as.numeric(urban_bb$`Download Bandwidth Mbps`), 
                  total_charge = as.numeric(urban_bb$`Total Charge`),
                  tech = urban_bb$Technology)
-d3_test %>% toJSON() %>% write_lines(here("D3", "urban_bb_sub.json"))
+d3_test %>% toJSON() %>% write_lines(here("Datasets", "urban_bb_sub.json"))
 
-d3_test[1:200,] %>% toJSON() %>% write_lines(here("D3", "urban_bb_small.json"))
+d3_test[1:200,] %>% toJSON() %>% write_lines(here("Datasets", "urban_bb_small.json"))
 
 
 land_area = read_excel(here("Datasets", "LND01.xls")) %>% select(STCOU, LND110210D)
@@ -37,4 +37,20 @@ geo_js = acs_17_mod %>% geojson_json(group = "geometry", geometry = "polygon")
 
 geo_js = ms_simplify(geo_js)
 
-geo_js %>% write_lines(here("D3", "acs_geo_data_simp.geojson"))
+geo_js %>% write_lines(here("Datasets", "acs_geo_data_simp.geojson"))
+
+
+var_names = read_excel(here("Datasets", "var_names.xlsx"))
+var_names %>% toJSON( )%>% write_lines(here("Datasets", "var_names.json"))
+
+
+find_n_of_int = function(data_set, var_name, lower, upper) {
+  data_set  %>% 
+    as_tibble() %>%
+    filter(eval(parse(text = paste(var_name))) > lower) %>%
+    filter(eval(parse(text = paste(var_name))) < upper) %>% 
+    .[,1] %>% 
+    count() %>% 
+    as.numeric() %>%
+    return()
+}
