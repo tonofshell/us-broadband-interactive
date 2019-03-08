@@ -68,6 +68,90 @@ let changeVars = function() {
 	changeMapVars(cValue, aValue, false);
 }
 
+let updateLegend = function(data, variable, parent, colorScale, legendH, legendW, varMin, varMax) {
+		let x = d3.scaleLinear()
+          .domain([varMin, varMax])
+          .rangeRound([0, legendW]);
+		
+		let y = d3.scaleLinear()
+				  .range([legendH, 10]);
+
+// set the parameters for the histogram
+		let hist = d3.histogram()
+			.value(function(dSub) {
+				return dSub.properties[variable] })
+			.domain(x.domain())
+			.thresholds(x.ticks());
+		
+		let bins = hist(data.features);
+		console.log(bins);
+
+		// Scale the range of the data in the y domain
+  		y.domain([0, d3.max(bins, function(dSub) { 
+/*			console.log(dSub.length);*/
+			return dSub.length; })]);
+		
+		let legend = mapSvg.select(parent).selectAll("#bar").data(bins);
+		
+		legend.exit()
+      		.attr("class", "exit")
+    		.transition()
+			.duration(transInterval)
+			.delay(function(d, i) { return i * 10; })
+      		.style("fill-opacity", 1e-6)
+      		.remove();
+		
+		legend.attr("class", "update")
+      		.attr("x", 1)
+      		.style("fill-opacity", 1)
+    		.transition()
+			.duration(transInterval)
+      		.attr("transform", function(dBins) {
+			  return "translate(" + x(dBins.x0) + "," + y(dBins.length) + ")"; })
+			.attr("width", function(dBins) { return x(dBins.x1) - x(dBins.x0); })
+			.attr("height", function(dBins) { 
+/*				console.log(legendH - colorY(dBins.length));*/
+				return legendH - y(dBins.length) + 10; })
+			.attr("fill", function(dBins) {
+					//console.log(dBins.x1);
+					return colorScale(dBins.x1);});
+
+		legend.enter()
+			.append("rect")
+			.transition()
+			.duration(transInterval)
+			.delay(function(d, i) { return i * 10; })
+			.attr("class", "enter")
+			.attr("id", "bar")
+		  	.attr("x", 1)
+			.attr("transform", function(dBins) {
+			  return "translate(" + x(dBins.x0) + "," + y(dBins.length) + ")"; })
+			.attr("width", function(dBins) { return x(dBins.x1) - x(dBins.x0); })
+			.attr("height", function(dBins) { 
+/*				console.log(legendH - colorY(dBins.length));*/
+				return legendH - y(dBins.length) + 10; })
+			.attr("fill", function(dBins) {
+					//console.log(dBins.x1);
+					return colorScale(dBins.x1);});
+
+  // add the x Axis
+		  mapSvg.select(parent)
+			  .select("g")
+			  .transition()
+			  .duration(transInterval)
+			  .attr("transform", "translate(0," + (legendH + 10) + ")")
+			  .call(d3.axisBottom(x));
+
+		/*mapSvg.select("#color-legend")
+			.call(colorLegend);*/
+		
+// Add legend title		
+		mapSvg.select(parent).select("#title")
+			.transition()
+			.duration(transInterval)
+			.text(varNames[0][variable]);
+}
+
 let changeMapVars = function(colorVar, alphaVar, scaleDefault) {
 	dataPromise.then(function(d){
 		let dColorMin = d3.min(d.features, function(dSub) {return dSub.properties[colorVar]});
@@ -144,6 +228,10 @@ let changeMapVars = function(colorVar, alphaVar, scaleDefault) {
 		});
 /*		console.log(alphaLabels);*/
 		
+		updateLegend(d, colorVar, "#color-legend", newColorScale, 50, 300, dColorMin, dColorMax);
+		
+		updateLegend(d, alphaVar, "#alpha-legend", alphaLegendScale, 50, 300, dAlphaMin, dAlphaMax);
+		
 		// make some legends
 		/*let colorLegend = d3.legendColor()
 			.shapeWidth(legendSegmentWidth)
@@ -154,19 +242,32 @@ let changeMapVars = function(colorVar, alphaVar, scaleDefault) {
 			.labels(colorLabels)
 			.labelAlign("end")
 			.title(varNames[0][colorVar]);*/
+
 		
-		let legendW = 300;
-		let legendH = 50;
+		/*let alphaLegend =  d3.legendColor()
+			.shapeWidth(legendSegmentWidth)
+			.shapePadding(0)
+			.labelFormat(d3.format(".2f"))
+			.scale(alphaLegendScale)
+			.orient('horizontal')
+			.labels(alphaLabels)
+			.labelAlign("end")
+			.title(varNames[0][alphaVar]);
 		
-		let colorX = d3.scaleLinear()
-          .domain([dColorMin, dColorMax])
+		mapSvg.select("#alpha-legend")
+			.call(alphaLegend);*/
+		
+// alpha legend
+		
+/*let alphaX = d3.scaleLinear()
+          .domain([dAlphaMin, dAlphaMax])
           .rangeRound([0, legendW]);
 		
-		let colorY = d3.scaleLinear()
+		let alphaY = d3.scaleLinear()
 				  .range([legendH, 10]);
 
-// set the parameters for the histogram
-		let colorHist = d3.histogram()
+set the parameters for the histogram
+		let alphaHist = d3.histogram()
 			.value(function(dSub) {
 				return dSub.properties[colorVar] })
 			.domain(colorX.domain())
@@ -175,9 +276,9 @@ let changeMapVars = function(colorVar, alphaVar, scaleDefault) {
 		let bins = colorHist(d.features);
 		console.log(bins);
 
-		// Scale the range of the data in the y domain
+		//Scale the range of the data in the y domain
   		colorY.domain([0, d3.max(bins, function(dSub) { 
-/*			console.log(dSub.length);*/
+			console.log(dSub.length);
 			return dSub.length; })]);
 		
 		let colorLegend = mapSvg.select("#color-legend").selectAll("#bar").data(bins);
@@ -199,7 +300,7 @@ let changeMapVars = function(colorVar, alphaVar, scaleDefault) {
 			  return "translate(" + colorX(dBins.x0) + "," + colorY(dBins.length) + ")"; })
 			.attr("width", function(dBins) { return colorX(dBins.x1) - colorX(dBins.x0); })
 			.attr("height", function(dBins) { 
-/*				console.log(legendH - colorY(dBins.length));*/
+				console.log(legendH - colorY(dBins.length));
 				return legendH - colorY(dBins.length) + 10; })
 			.attr("fill", function(dBins) {
 					//console.log(dBins.x1);
@@ -218,7 +319,7 @@ let changeMapVars = function(colorVar, alphaVar, scaleDefault) {
 			  return "translate(" + colorX(dBins.x0) + "," + colorY(dBins.length) + ")"; })
 			.attr("width", function(dBins) { return colorX(dBins.x1) - colorX(dBins.x0); })
 			.attr("height", function(dBins) { 
-/*				console.log(legendH - colorY(dBins.length));*/
+			console.log(legendH - colorY(dBins.length));
 				return legendH - colorY(dBins.length) + 10; })
 			.attr("fill", function(dBins) {
 					//console.log(dBins.x1);
@@ -233,26 +334,13 @@ let changeMapVars = function(colorVar, alphaVar, scaleDefault) {
 			  .call(d3.axisBottom(colorX));
 
 		/*mapSvg.select("#color-legend")
-			.call(colorLegend);*/
+			.call(colorLegend);
 		
-// Add legend title		
+ //Add color legend title		
 		mapSvg.select("#color-legend").select("#title")
 			.transition()
 			.duration(transInterval)
-			.text(varNames[0][colorVar]);
-		
-		let alphaLegend =  d3.legendColor()
-			.shapeWidth(legendSegmentWidth)
-			.shapePadding(0)
-			.labelFormat(d3.format(".2f"))
-			.scale(alphaLegendScale)
-			.orient('horizontal')
-			.labels(alphaLabels)
-			.labelAlign("end")
-			.title(varNames[0][alphaVar]);
-		
-		mapSvg.select("#alpha-legend")
-			.call(alphaLegend);
+			.text(varNames[0][colorVar]);*/
 		
 	});
 }
@@ -303,22 +391,27 @@ dataPromise.then(function(geoData) {
 			mapSvg.append("g")
 				.attr("id", "color-legend")
 				.attr("transform", "translate(" + ((getWidth() * colorLegPos) - (legendSegmentWidth / 2 * 5) ) + ", " + (getHeight() * legendHPos) + ")" );
+			mapSvg.append("g")
+				.attr("id", "alpha-legend")
+				.attr("transform", "translate(" + ((getWidth() * alphaLegPos) - (legendSegmentWidth  / 2 * 5) ) + ", " + (getHeight() * legendHPos) + ")" );
+			
 			mapSvg.select("#color-legend").append("g");
+			mapSvg.select("#alpha-legend").append("g");
+			
 			for(let i = 0; i < 12; i++) {
 				mapSvg.select("#color-legend").append("rect").attr("id", "bar");
+				mapSvg.select("#alpha-legend").append("rect").attr("id", "bar");
 			}
 			mapSvg.select("#color-legend").append("text")
 				.attr("id", "title")
 				.attr("x", 5)
 				.attr("y", 5)
 			
-			
-			mapSvg.append("g")
-				.attr("id", "alpha-legend")
-				.attr("transform", "translate(" + ((getWidth() * alphaLegPos) - (legendSegmentWidth  / 2 * 5) ) + ", " + (getHeight() * legendHPos) + ")" );
-			
-			//mapSvg.select("#alpha-legend").append("rect").
-			
+			mapSvg.select("#alpha-legend").append("text")
+				.attr("id", "title")
+				.attr("x", 5)
+				.attr("y", 5)
+
 			// select initial variables to show
 			document.getElementById("colorSelect").value = "no_inet";
 			document.getElementById("alphaSelect").value = "below_poverty";
