@@ -30,4 +30,14 @@ body{
 
 #map-wrap {
 	background-color: white;
+	height: 100%;
+}
+
+#legend-wrap {
+	height: 150px;
+	margin: 20px;
+}
+
+#title {
+	font-size: 20pt;
 }

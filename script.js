@@ -1,23 +1,23 @@
 //Javascript document
 
 //Functions
-let getHeight = function() {
-	let hei = document.getElementById('map-wrap').offsetHeight;
+let getHeight = function(parentId) {
+	let hei = document.getElementById(parentId).offsetHeight;
 //	console.log("Current height: " + hei);
 	return hei;
 }
 
-let getWidth = function() {
-	let wid = document.getElementById('map-wrap').offsetWidth;
+let getWidth = function(parentId) {
+	let wid = document.getElementById(parentId).offsetWidth;
 //	console.log("Current width: " + wid);
 	return wid;
 }
 
 let mapPath = function() {
-	let hScale = getHeight() / 1000 * 1900;
-	let wScale = getWidth() / 875 * 1200;
-	let centerH = getHeight() / 2;
-	let centerW = getWidth() / 2;
+	let hScale = getHeight("map-wrap") / 1000 * 1900;
+	let wScale = getWidth("map-wrap") / 875 * 1200;
+	let centerH = getHeight("map-wrap") / 2;
+	let centerW = getWidth("map-wrap") / 2;
 	
 	let finScale = 0;
 	if (hScale < wScale) {
@@ -31,32 +31,30 @@ let mapPath = function() {
 	return d3.geoPath().projection(mapProj);
 }
 
-let histogramScale = function(data, range) {
-	let hist = d3.hist
-}
-
 let updateMapSize = function(h, w) {
 	mapSvg.transition(transInterval / 5)
-		.attr("height", getHeight())
-		.attr("width", getWidth())
+		.attr("height", h)
+		.attr("width", w)
 		.selectAll("path")
 		.attr('d', mapPath());
-	
-	mapSvg.select("#color-legend")
-		.transition(transInterval / 5)
-		.attr("transform", "translate(" + ((w * colorLegPos) - (legendSegmentWidth / 2 * 5) ) + ", " + (h * legendHPos) + ")" );
-	
-	mapSvg.select("#alpha-legend")
-		.transition(transInterval / 5)
-		.attr("transform", "translate(" + ((w * alphaLegPos) - (legendSegmentWidth / 2 * 5) ) + ", " + (h * legendHPos) + ")" );
 }
 
+let updateLegendSize = function(h, w) {
+	legendSvg.transition(transInterval / 10)
+		.attr("height", h)
+		.attr("width", w)
+		.select("#color-legend")
+		.attr("transform", "translate(" + ((w * colorLegPos) - (legendWidth / 2) )+ ", " + 0 + ")" )
+	legendSvg.transition(transInterval / 10)
+		.attr("height", h)
+		.attr("width", w)
+		.select("#alpha-legend")
+		.attr("transform", "translate(" + ((w * alphaLegPos) - (legendWidth / 2) ) + ", " + 0 + ")" );
+} 
+
 let updateView = function() {
-	let h = getHeight();
-	let w = getWidth();
-	updateMapSize(h, w);
-	oldHeight = h;
-	oldWidth = w;
+	updateMapSize(getHeight("map-wrap"), getWidth("map-wrap"));
+	updateLegendSize(getHeight("legend-wrap"), getWidth("legend-wrap"));
 }
 
 let changeVars = function() {
@@ -68,14 +66,17 @@ let changeVars = function() {
 	changeMapVars(cValue, aValue, false);
 }
 
-let updateLegend = function(data, variable, parent, colorScale, legendH, legendW, varMin, varMax) {
+let updateLegend = function(data, variable, parent, colorScale, svg, parentDiv, varMin, varMax) {
+		let legendH = getHeight(parentDiv);
+		let legendW = legendWidth;
+	
 		let x = d3.scaleLinear()
           .domain([varMin, varMax])
           .rangeRound([0, legendW]);
 		
 		let y = d3.scaleLinear()
-				  .range([legendH, 10]);
-
+				  .range([legendH, 55]);
+// used https://bl.ocks.org/d3noob/96b74d0bd6d11427dd797892551a103c as reference for histogram
 // set the parameters for the histogram
 		let hist = d3.histogram()
 			.value(function(dSub) {
@@ -91,8 +92,9 @@ let updateLegend = function(data, variable, parent, colorScale, legendH, legendW
 /*			console.log(dSub.length);*/
 			return dSub.length; })]);
 		
-		let legend = mapSvg.select(parent).selectAll("#bar").data(bins);
-		
+		let legend = svg.select(parent).selectAll("#bar").data(bins);
+	
+// used https://bl.ocks.org/mbostock/3808234 as reference for update cycle
 		legend.exit()
       		.attr("class", "exit")
     		.transition()
@@ -107,7 +109,7 @@ let updateLegend = function(data, variable, parent, colorScale, legendH, legendW
     		.transition()
 			.duration(transInterval)
       		.attr("transform", function(dBins) {
-			  return "translate(" + x(dBins.x0) + "," + y(dBins.length) + ")"; })
+			  return "translate(" + x(dBins.x0) + "," + (y(dBins.length) - 30) + ")"; })
 			.attr("width", function(dBins) { return x(dBins.x1) - x(dBins.x0); })
 			.attr("height", function(dBins) { 
 /*				console.log(legendH - colorY(dBins.length));*/
@@ -125,7 +127,7 @@ let updateLegend = function(data, variable, parent, colorScale, legendH, legendW
 			.attr("id", "bar")
 		  	.attr("x", 1)
 			.attr("transform", function(dBins) {
-			  return "translate(" + x(dBins.x0) + "," + y(dBins.length) + ")"; })
+			  return "translate(" + x(dBins.x0) + "," + (y(dBins.length) - 30) + ")"; })
 			.attr("width", function(dBins) { return x(dBins.x1) - x(dBins.x0); })
 			.attr("height", function(dBins) { 
 /*				console.log(legendH - colorY(dBins.length));*/
@@ -135,18 +137,18 @@ let updateLegend = function(data, variable, parent, colorScale, legendH, legendW
 					return colorScale(dBins.x1);});
 
   // add the x Axis
-		  mapSvg.select(parent)
+		  svg.select(parent)
 			  .select("g")
 			  .transition()
 			  .duration(transInterval)
-			  .attr("transform", "translate(0," + (legendH + 10) + ")")
+			  .attr("transform", "translate(0," + (legendH - 20) + ")")
 			  .call(d3.axisBottom(x));
 
 		/*mapSvg.select("#color-legend")
 			.call(colorLegend);*/
 		
 // Add legend title		
-		mapSvg.select(parent).select("#title")
+		svg.select(parent).select("#title")
 			.transition()
 			.duration(transInterval)
 			.text(varNames[0][variable]);
@@ -228,119 +230,9 @@ let changeMapVars = function(colorVar, alphaVar, scaleDefault) {
 		});
 /*		console.log(alphaLabels);*/
 		
-		updateLegend(d, colorVar, "#color-legend", newColorScale, 50, 300, dColorMin, dColorMax);
+		updateLegend(d, colorVar, "#color-legend", newColorScale, legendSvg, "legend-wrap", dColorMin, dColorMax);
 		
-		updateLegend(d, alphaVar, "#alpha-legend", alphaLegendScale, 50, 300, dAlphaMin, dAlphaMax);
-		
-		// make some legends
-		/*let colorLegend = d3.legendColor()
-			.shapeWidth(legendSegmentWidth)
-			.shapePadding(0)
-			.labelFormat(d3.format(".2f"))
-			.scale(newColorScale)
-			.orient('horizontal')
-			.labels(colorLabels)
-			.labelAlign("end")
-			.title(varNames[0][colorVar]);*/
-
-		
-		/*let alphaLegend =  d3.legendColor()
-			.shapeWidth(legendSegmentWidth)
-			.shapePadding(0)
-			.labelFormat(d3.format(".2f"))
-			.scale(alphaLegendScale)
-			.orient('horizontal')
-			.labels(alphaLabels)
-			.labelAlign("end")
-			.title(varNames[0][alphaVar]);
-		
-		mapSvg.select("#alpha-legend")
-			.call(alphaLegend);*/
-		
-// alpha legend
-		
-/*let alphaX = d3.scaleLinear()
-          .domain([dAlphaMin, dAlphaMax])
-          .rangeRound([0, legendW]);
-		
-		let alphaY = d3.scaleLinear()
-				  .range([legendH, 10]);
-
-set the parameters for the histogram
-		let alphaHist = d3.histogram()
-			.value(function(dSub) {
-				return dSub.properties[colorVar] })
-			.domain(colorX.domain())
-			.thresholds(colorX.ticks());
-		
-		let bins = colorHist(d.features);
-		console.log(bins);
-
-		//Scale the range of the data in the y domain
-  		colorY.domain([0, d3.max(bins, function(dSub) { 
-			console.log(dSub.length);
-			return dSub.length; })]);
-		
-		let colorLegend = mapSvg.select("#color-legend").selectAll("#bar").data(bins);
-		
-		colorLegend.exit()
-      		.attr("class", "exit")
-    		.transition()
-			.duration(transInterval)
-			.delay(function(d, i) { return i * 10; })
-      		.style("fill-opacity", 1e-6)
-      		.remove();
-		
-		colorLegend.attr("class", "update")
-      		.attr("x", 1)
-      		.style("fill-opacity", 1)
-    		.transition()
-			.duration(transInterval)
-      		.attr("transform", function(dBins) {
-			  return "translate(" + colorX(dBins.x0) + "," + colorY(dBins.length) + ")"; })
-			.attr("width", function(dBins) { return colorX(dBins.x1) - colorX(dBins.x0); })
-			.attr("height", function(dBins) { 
-				console.log(legendH - colorY(dBins.length));
-				return legendH - colorY(dBins.length) + 10; })
-			.attr("fill", function(dBins) {
-					//console.log(dBins.x1);
-					return newColorScale(dBins.x1);});
-
-
-		colorLegend.enter()
-			.append("rect")
-			.transition()
-			.duration(transInterval)
-			.delay(function(d, i) { return i * 10; })
-			.attr("class", "enter")
-			.attr("id", "bar")
-		  	.attr("x", 1)
-			.attr("transform", function(dBins) {
-			  return "translate(" + colorX(dBins.x0) + "," + colorY(dBins.length) + ")"; })
-			.attr("width", function(dBins) { return colorX(dBins.x1) - colorX(dBins.x0); })
-			.attr("height", function(dBins) { 
-			console.log(legendH - colorY(dBins.length));
-				return legendH - colorY(dBins.length) + 10; })
-			.attr("fill", function(dBins) {
-					//console.log(dBins.x1);
-					return newColorScale(dBins.x1);});
-
-  // add the x Axis
-		  mapSvg.select("#color-legend")
-			  .select("g")
-			  .transition()
-			  .duration(transInterval)
-			  .attr("transform", "translate(0," + (legendH + 10) + ")")
-			  .call(d3.axisBottom(colorX));
-
-		/*mapSvg.select("#color-legend")
-			.call(colorLegend);
-		
- //Add color legend title		
-		mapSvg.select("#color-legend").select("#title")
-			.transition()
-			.duration(transInterval)
-			.text(varNames[0][colorVar]);*/
+		updateLegend(d, alphaVar, "#alpha-legend", alphaLegendScale, legendSvg, "legend-wrap", dAlphaMin, dAlphaMax);
 		
 	});
 }
@@ -349,18 +241,22 @@ set the parameters for the histogram
 
 	//Constants
 const transInterval = 750;
-const legendSegmentWidth = 60;
+const legendWidth = 300;
 const colorLegPos = 0.3;
 const alphaLegPos = (1 - colorLegPos);
-const legendHPos = 0.03;
 
 const varNames = [{"avg_fam_inc":"Average Family Income","below_poverty":"Percent Below Poverty Line","broadband_any":"Percent with Broadband","broadband_wired":"Percent with Wired Broadband","broadband_wired_only":"Percent with Only Wired Broadband","cell_inet":"Percent with Cellular Internet","cell_inet_only":"Percent with Only Cellular Internet","desktop_alone":"Percent with Only a Desktop","dial_up_only":"Percent with Only Dial Up","employed":"Percent Employed","female":"Percent Female","med_age":"Median Age","med_income":"Median Income","month_housing_costs":"Average Monthly Housing Cost","no_inet":"Percent with No Internet","pop_dens":"Population Density","satelite":"Percent with Satelite Internet","satelite_only":"Percent with Only Satelite Internet","smartphone_alone":"Percent with Only a Smartphone","tablet_alone":"Percent with Only a Tablet","white":"Percent White","work_outside_res_area":"Percent that Works Outside County"}];
 
 
 let mapSvg = d3.select('#map-wrap')
 	.append("svg")
-	.attr("height", getHeight())
-	.attr("width", getWidth());
+	.attr("height", getHeight("map-wrap"))
+	.attr("width", getWidth("map-wrap"));
+
+let legendSvg = d3.select('#legend-wrap')
+	.append("svg")
+	.attr("height", getHeight("legend-wrap"))
+	.attr("width", getWidth("legend-wrap"));
 
 	//Get the party started
 	//Promise some data
@@ -388,35 +284,35 @@ dataPromise.then(function(geoData) {
 				.style('fill', "#C8DCC8");
 			
 			// append g elements for future legends
-			mapSvg.append("g")
+			legendSvg.append("g")
 				.attr("id", "color-legend")
-				.attr("transform", "translate(" + ((getWidth() * colorLegPos) - (legendSegmentWidth / 2 * 5) ) + ", " + (getHeight() * legendHPos) + ")" );
-			mapSvg.append("g")
+				.attr("transform", "translate(" + ((getWidth("legend-wrap") * colorLegPos) - (legendWidth / 2) ) + ", " + (0) + ")" );
+			legendSvg.append("g")
 				.attr("id", "alpha-legend")
-				.attr("transform", "translate(" + ((getWidth() * alphaLegPos) - (legendSegmentWidth  / 2 * 5) ) + ", " + (getHeight() * legendHPos) + ")" );
+				.attr("transform", "translate(" + ((getWidth("legend-wrap") * alphaLegPos) - (legendWidth  / 2) ) + ", " + (0) + ")" );
 			
-			mapSvg.select("#color-legend").append("g");
-			mapSvg.select("#alpha-legend").append("g");
+			legendSvg.select("#color-legend").append("g");
+			legendSvg.select("#alpha-legend").append("g");
 			
-			for(let i = 0; i < 12; i++) {
+			/*for(let i = 0; i < 12; i++) {
 				mapSvg.select("#color-legend").append("rect").attr("id", "bar");
 				mapSvg.select("#alpha-legend").append("rect").attr("id", "bar");
-			}
-			mapSvg.select("#color-legend").append("text")
+			}*/
+			legendSvg.select("#color-legend").append("text")
 				.attr("id", "title")
 				.attr("x", 5)
-				.attr("y", 5)
+				.attr("y", 20)
 			
-			mapSvg.select("#alpha-legend").append("text")
+			legendSvg.select("#alpha-legend").append("text")
 				.attr("id", "title")
 				.attr("x", 5)
-				.attr("y", 5)
+				.attr("y", 20)
 
 			// select initial variables to show
 			document.getElementById("colorSelect").value = "no_inet";
 			document.getElementById("alphaSelect").value = "below_poverty";
 			changeVars();			
 		}
-	});
+});
 
 

@@ -3,18 +3,19 @@
 <head>
 	<meta charset="utf-8">
 	<title>US Broadband</title>
+	<link href="css/bootstrap.min.css" rel="stylesheet" type="text/css">
+	<link href="style.css" rel="stylesheet" type="text/css">
+	<link href="https://fonts.googleapis.com/css?family=Contrail+One|News+Cycle:400,700|Pragati+Narrow:400,700&amp;subset=latin-ext" rel="stylesheet">
 	<script type="text/javascript" src="js/d3.min.js"></script>
 	<script type="text/javascript" src="js/d3-legend.min.js"></script>
 	<script type="text/javascript" src="js/bootstrap.min.js"></script>
-	<link href="css/bootstrap.min.css" rel="stylesheet" type="text/css">
-	<link href="style.css" rel="stylesheet" type="text/css">
 </head>
 <body onresize="updateView()">
 	<div class="container">
 		<div class="row row-fluid">
-			<div class="left-wrapper col-md-3">
+			<div class="left-wrapper col-lg-3">
 				<div class="row">
-					<div class="col-md-12">
+					<div class="col-lg-12">
 						<h1>Interactive Map of US Internet Access</h1>
 					</div>
 					<div class="col-6">
@@ -47,14 +48,35 @@
 					<option value="med_income">med_income</option>
 					<option value="month_housing_costs">month_housing_costs</option>
 					<option value="pop_dens">pop_dens</option>
-					<option value="total_pop">total_pop</option>
 					<option value="white">white</option>
 					<option value="work_outside_res_area">work_outside_res_area</option>
 				</select>
 					</div>
 				</div>
+				<div class="row">
+					<div class="col-12" id="lipsum">
+						<p>
+						Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam quam sem, consectetur et ante at, molestie tristique mauris. Cras vel ligula eleifend, malesuada elit nec, rutrum velit. Ut aliquam laoreet erat. Suspendisse eleifend dui sed diam interdum imperdiet. Suspendisse ultricies eleifend commodo. Quisque tempor pretium venenatis. Curabitur luctus, orci eu sollicitudin scelerisque, dui massa faucibus nunc, vitae rhoncus est mauris sed enim. Suspendisse sollicitudin leo id augue ullamcorper, non congue quam sagittis. Donec dapibus nisi at sagittis fermentum.
+						</p>
+						<!--<p>
+						Fusce id volutpat magna. Sed non mauris id quam egestas tincidunt. Quisque eu neque ac libero egestas eleifend. Donec accumsan odio ut tincidunt blandit. Aliquam erat volutpat. Sed vel bibendum elit. Aenean feugiat volutpat ligula, et placerat nisi feugiat luctus. Nulla nisi odio, volutpat sed efficitur eget, rutrum ac libero. Nullam rhoncus ex vel metus aliquet pretium et nec nulla. Suspendisse pharetra ipsum nec erat dictum, eu lacinia eros bibendum. Vivamus facilisis id dui id fringilla. Quisque ultrices orci in felis finibus pulvinar. Ut mattis sagittis erat sed venenatis.
+						</p>
+						<p>
+						Nunc euismod lectus sit amet mollis semper. Etiam nunc dui, pretium nec sollicitudin a, sollicitudin pulvinar ex. Nam consequat eu mi a mollis. Suspendisse vitae eros elit. Nulla id fermentum mi. Duis sed odio odio. Praesent a turpis eget ante iaculis accumsan. Nulla eu bibendum dolor. Curabitur a consectetur risus, eget mattis quam. Maecenas ornare mattis felis, imperdiet vehicula odio fringilla ut. Vestibulum orci purus, lobortis at leo eget, scelerisque dignissim augue. Nulla maximus et quam sed mollis.
+						</p>
+						<p>
+						In tincidunt velit sed lectus ultricies euismod. Maecenas elit enim, sollicitudin a ultrices sit amet, volutpat id tortor. Cras egestas diam et sollicitudin pretium. Phasellus faucibus libero ac odio interdum scelerisque. Morbi vitae tempor neque. Donec eget ex vehicula magna fermentum suscipit. Phasellus placerat, eros eu pretium accumsan, ipsum purus aliquet ex, quis tincidunt turpis tellus tempus velit. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Sed massa ligula, vehicula ut est sed, tempus mollis ex. Fusce at felis at urna blandit imperdiet eu quis dui. Fusce tempus auctor tortor sed placerat. Quisque commodo quis nibh in vestibulum. Vivamus hendrerit velit eget dui finibus maximus. Vivamus sollicitudin sem quis lorem cursus, vel posuere turpis porttitor.
+						</p>
+						<p>
+						Integer semper neque et dui euismod, at vulputate odio lobortis. Nunc augue ipsum, congue at quam ac, dictum viverra arcu. Maecenas sit amet elit sed justo malesuada placerat. Sed aliquet risus sit amet lectus auctor sollicitudin. Mauris interdum placerat sollicitudin. Sed suscipit maximus lorem, eget lobortis ante tincidunt in. Praesent purus quam, varius nec convallis quis, rutrum in magna. Sed feugiat libero non quam ornare, vel malesuada ex rhoncus. Fusce varius mauris quis pharetra viverra. In tempus cursus leo. Sed sollicitudin, ipsum sit amet interdum suscipit, risus neque viverra arcu, et vestibulum tellus metus sit amet erat. Phasellus vehicula ante eget orci feugiat hendrerit. Proin et diam tortor. Etiam suscipit tincidunt neque, ac tristique lacus porttitor eu. Nunc at ultricies arcu, mattis faucibus risus.
+						</p>-->
+					</div>
+				</div>
 			</div>
-			<div class="map-wrapper col-md-9" id="map-wrap"></div>
+			<div class="col-lg-9">
+				<div class="legend-wrapper" id="legend-wrap"></div>
+				<div class="map-wrapper" id="map-wrap"></div>
+			</div>
 		</div>
 	</div>
 	<script type="text/javascript" src="script.js"></script>
