@@ -1,7 +1,6 @@
 /* CSS Document */
 html, body {
   height: 100%;
-  overflow: hidden;
 }
 
 body{
@@ -14,27 +13,78 @@ body{
 	background-color: white;
 }
 
-.row-fluid { height: inherit; }
+h1 {
+	font-family: "News Cycle";
+	font-weight: 700;
+}
+
+.row-fluid { 
+	height: inherit;
+	width: 100vw;
+}
 
 .container {
 	max-width: 100%;
 	height: 100%;
 	min-height: 100%;
+	padding: 0;
 }
 
-.map-wrapper {
-	height: 100%;
-	min-height: 100%;
+div .cover-page {
+	height: 100vh;
+	width: 100vw;
 	padding: 0;
+	margin: 0;
+	display: flex;
+	align-content: center;
+	justify-content: center;
+	background-image: linear-gradient(rgba(200, 200, 200, 0.25), rgba(255, 255, 255, 1)), url("cover-image.jpg");
+	background-repeat: no-repeat;
+	background-size: cover;
+	background-clip: content-box;
+	overflow: hidden;
+}
+
+.cp-text-wrapper{
+	margin: auto;
+	width: 600px;
+	display: inline-block;
+	text-align: center;
+}
+
+.cp-title{
+	margin: auto;
+	font-weight: 700;
+	font-family: "News Cycle";
+}
+
+.left-wrapper {
+}
+
+#graph {
+	position: sticky;
+    top: 0px;
+    float: right;
+}
+
+.right-wrapper {
+	height: 100vh;
+}
+
+.section{
+	height: 100vh;
+	padd
 }
 
 #map-wrap {
 	background-color: white;
-	height: 100%;
+	height: 90%;
+	max-height: 100%;
+	padding: 0;
 }
 
 #legend-wrap {
-	height: 150px;
+	height: 10%;
 	margin: 20px;
 }
 

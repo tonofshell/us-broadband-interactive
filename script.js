@@ -13,11 +13,13 @@ let getWidth = function(parentId) {
 	return wid;
 }
 
-let mapPath = function() {
-	let hScale = getHeight("map-wrap") / 1000 * 1900;
-	let wScale = getWidth("map-wrap") / 875 * 1200;
-	let centerH = getHeight("map-wrap") / 2;
-	let centerW = getWidth("map-wrap") / 2;
+let mapPath = function(h, w) {
+	let hScale = h / 1100 * 1900;
+	let wScale = w / 875 * 1200;
+	let centerH = h / 2;
+	let centerW = w / 2;
+	
+	console.log(centerW + " " + centerH)
 	
 	let finScale = 0;
 	if (hScale < wScale) {
@@ -26,17 +28,18 @@ let mapPath = function() {
 		finScale = wScale
 	}
 	
-//	console.log("Map scale: " + finScale)
+	console.log("Map scale: " + finScale)
 	let mapProj = d3.geoAlbersUsa().scale([finScale]).translate([centerW, centerH]);
 	return d3.geoPath().projection(mapProj);
 }
 
 let updateMapSize = function(h, w) {
+	console.log("dimensions(" + h + ", " + w +")");
 	mapSvg.transition(transInterval / 5)
 		.attr("height", h)
 		.attr("width", w)
 		.selectAll("path")
-		.attr('d', mapPath());
+		.attr('d', mapPath(h, w));
 }
 
 let updateLegendSize = function(h, w) {
@@ -242,7 +245,7 @@ let changeMapVars = function(colorVar, alphaVar, scaleDefault) {
 	//Constants
 const transInterval = 750;
 const legendWidth = 300;
-const colorLegPos = 0.3;
+const colorLegPos = 0.28;
 const alphaLegPos = (1 - colorLegPos);
 
 const varNames = [{"avg_fam_inc":"Average Family Income","below_poverty":"Percent Below Poverty Line","broadband_any":"Percent with Broadband","broadband_wired":"Percent with Wired Broadband","broadband_wired_only":"Percent with Only Wired Broadband","cell_inet":"Percent with Cellular Internet","cell_inet_only":"Percent with Only Cellular Internet","desktop_alone":"Percent with Only a Desktop","dial_up_only":"Percent with Only Dial Up","employed":"Percent Employed","female":"Percent Female","med_age":"Median Age","med_income":"Median Income","month_housing_costs":"Average Monthly Housing Cost","no_inet":"Percent with No Internet","pop_dens":"Population Density","satelite":"Percent with Satelite Internet","satelite_only":"Percent with Only Satelite Internet","smartphone_alone":"Percent with Only a Smartphone","tablet_alone":"Percent with Only a Tablet","white":"Percent White","work_outside_res_area":"Percent that Works Outside County"}];
@@ -280,8 +283,8 @@ dataPromise.then(function(geoData) {
 				.data(geoData.features)
 				.enter()
 				.append('path')
-				.attr('d', mapPath())
-				.style('fill', "#C8DCC8");
+				.attr('d', mapPath(getHeight("map-wrap"), getWidth("map-wrap")))
+				.style('fill', "rgba(0, 0, 0, 0)");
 			
 			// append g elements for future legends
 			legendSvg.append("g")
@@ -293,11 +296,7 @@ dataPromise.then(function(geoData) {
 			
 			legendSvg.select("#color-legend").append("g");
 			legendSvg.select("#alpha-legend").append("g");
-			
-			/*for(let i = 0; i < 12; i++) {
-				mapSvg.select("#color-legend").append("rect").attr("id", "bar");
-				mapSvg.select("#alpha-legend").append("rect").attr("id", "bar");
-			}*/
+
 			legendSvg.select("#color-legend").append("text")
 				.attr("id", "title")
 				.attr("x", 5)
@@ -314,5 +313,12 @@ dataPromise.then(function(geoData) {
 			changeVars();			
 		}
 });
+
+d3.graphScroll()
+	.graph(d3.select('#graph'))
+	.container(d3.select('#story-container'))
+  .sections(d3.selectAll('#story-content > div'))
+  .on('active', function(i){ console.log(i + 'th section active') });
+
 
 
