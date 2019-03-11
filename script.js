@@ -240,6 +240,49 @@ let changeMapVars = function(colorVar, alphaVar, scaleDefault) {
 	});
 }
 
+let initBlankMap = function(dataProm) {
+	dataProm.then(function(geoData) {
+		//Check that data loaded
+		if (geoData == null) {
+			console.log("Error loading data");
+		} else {
+			console.log("Data loaded");
+			console.log(geoData);
+		
+			// append paths with no data to SVG
+			mapSvg.append("g")
+				.attr("id", "svg-map");
+			
+			mapSvg.select("#svg-map").selectAll('path')
+				.data(geoData.features)
+				.enter()
+				.append('path')
+				.attr('d', mapPath(getHeight("map-wrap"), getWidth("map-wrap")))
+				.style('fill', "#5A5A5A");
+			
+			// append g elements for future legends
+			legendSvg.append("g")
+				.attr("id", "color-legend")
+				.attr("transform", "translate(" + ((getWidth("legend-wrap") * colorLegPos) - (legendWidth / 2) ) + ", " + (0) + ")" );
+			legendSvg.append("g")
+				.attr("id", "alpha-legend")
+				.attr("transform", "translate(" + ((getWidth("legend-wrap") * alphaLegPos) - (legendWidth  / 2) ) + ", " + (0) + ")" );
+			
+			legendSvg.select("#color-legend").append("g");
+			legendSvg.select("#alpha-legend").append("g");
+
+			legendSvg.select("#color-legend").append("text")
+				.attr("id", "title")
+				.attr("x", 5)
+				.attr("y", 20)
+			legendSvg.select("#alpha-legend").append("text")
+				.attr("id", "title")
+				.attr("x", 5)
+				.attr("y", 20)
+		}
+});
+}
+
 //Scripted code
 
 	//Constants
@@ -267,58 +310,33 @@ let dataPromise = d3.json("acs_geo_data_simp.geojson");
 
 // Link the data to the visualiation
 // and draw initial elements on SVG
-dataPromise.then(function(geoData) {
-		//Check that data loaded
-		if (geoData == null) {
-			console.log("Error loading data");
-		} else {
-			console.log("Data loaded");
-			console.log(geoData);
-		
-			// append paths with no data to SVG
-			mapSvg.append("g")
-				.attr("id", "svg-map");
-			
-			mapSvg.select("#svg-map").selectAll('path')
-				.data(geoData.features)
-				.enter()
-				.append('path')
-				.attr('d', mapPath(getHeight("map-wrap"), getWidth("map-wrap")))
-				.style('fill', "rgba(0, 0, 0, 0)");
-			
-			// append g elements for future legends
-			legendSvg.append("g")
-				.attr("id", "color-legend")
-				.attr("transform", "translate(" + ((getWidth("legend-wrap") * colorLegPos) - (legendWidth / 2) ) + ", " + (0) + ")" );
-			legendSvg.append("g")
-				.attr("id", "alpha-legend")
-				.attr("transform", "translate(" + ((getWidth("legend-wrap") * alphaLegPos) - (legendWidth  / 2) ) + ", " + (0) + ")" );
-			
-			legendSvg.select("#color-legend").append("g");
-			legendSvg.select("#alpha-legend").append("g");
 
-			legendSvg.select("#color-legend").append("text")
-				.attr("id", "title")
-				.attr("x", 5)
-				.attr("y", 20)
-			
-			legendSvg.select("#alpha-legend").append("text")
-				.attr("id", "title")
-				.attr("x", 5)
-				.attr("y", 20)
-
-			// select initial variables to show
-			document.getElementById("colorSelect").value = "no_inet";
-			document.getElementById("alphaSelect").value = "below_poverty";
-			changeVars();			
-		}
-});
 
 d3.graphScroll()
 	.graph(d3.select('#graph'))
 	.container(d3.select('#story-container'))
-  .sections(d3.selectAll('#story-content > div'))
-  .on('active', function(i){ console.log(i + 'th section active') });
+  	.sections(d3.selectAll('#story-content > div'))
+  	.on('active', function(i){ 
+		console.log(i + 'th section active');
+		if(i == 0) {
+			initBlankMap(dataPromise);
+		}
+		if(i == 1) {
+			changeMapVars("no_inet", "employed", false);
+		}
+		if(i == 2) {
+			changeMapVars("broadband_any", "white", false);
+		}
+		if(i == 3) {
+			changeMapVars("smartphone_alone", "month_housing_costs", false);
+		}
+		if	(i == 4) {
+			// select initial variables to show
+			document.getElementById("colorSelect").value = "no_inet";
+			document.getElementById("alphaSelect").value = "below_poverty";
+			changeVars();	
+		}
+});
 
 
 

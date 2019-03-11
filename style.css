@@ -1,6 +1,27 @@
 /* CSS Document */
-html, body {
+html {
   height: 100%;
+  font-size: 1rem;
+	 -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+}
+
+@include media-breakpoint-up(sm) {
+  html {
+    font-size: 1.2rem;
+  }
+}
+
+@include media-breakpoint-up(md) {
+  html {
+    font-size: 1.4rem;
+  }
+}
+
+@include media-breakpoint-up(lg) {
+  html {
+    font-size: 2rem;
+  }
 }
 
 body{
@@ -38,7 +59,7 @@ div .cover-page {
 	display: flex;
 	align-content: center;
 	justify-content: center;
-	background-image: linear-gradient(rgba(200, 200, 200, 0.25), rgba(255, 255, 255, 1)), url("cover-image.jpg");
+	background-image: linear-gradient(rgba(235, 80, 40, 0.25), rgba(235, 80, 40, 0.35), rgba(255, 255, 255, 1)), url("cover-image.jpg");
 	background-repeat: no-repeat;
 	background-size: cover;
 	background-clip: content-box;
@@ -56,6 +77,12 @@ div .cover-page {
 	margin: auto;
 	font-weight: 700;
 	font-family: "News Cycle";
+	color: white;
+	text-shadow: 5px 3px 5px rgba(0, 0, 0, 0.3);
+}
+
+.cp-explanation{
+	color: white;
 }
 
 .left-wrapper {
@@ -73,7 +100,14 @@ div .cover-page {
 
 .section{
 	height: 100vh;
-	padd
+}
+
+.section-last {
+	height: 98vh;
+}
+
+.title-content-sep {
+	height: 10%;
 }
 
 #map-wrap {
