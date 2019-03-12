@@ -287,9 +287,16 @@ let initBlankMap = function(dataProm) {
 
 	//Constants
 const transInterval = 750;
-const legendWidth = 300;
-const colorLegPos = 0.28;
-const alphaLegPos = (1 - colorLegPos);
+
+let colorLegPos = 0.28;
+let alphaLegPos = (1 - colorLegPos);
+let legendWidth = 300;
+
+if (legendWidth > getWidth("container") * alphaLegPos / 2 ) {
+	colorLegPos = 0.25;
+	alphaLegPos = (1 - colorLegPos);
+	legendWidth = getWidth("container") * alphaLegPos / 2.2
+}
 
 const varNames = [{"avg_fam_inc":"Average Family Income","below_poverty":"Percent Below Poverty Line","broadband_any":"Percent with Broadband","broadband_wired":"Percent with Wired Broadband","broadband_wired_only":"Percent with Only Wired Broadband","cell_inet":"Percent with Cellular Internet","cell_inet_only":"Percent with Only Cellular Internet","desktop_alone":"Percent with Only a Desktop","dial_up_only":"Percent with Only Dial Up","employed":"Percent Employed","female":"Percent Female","med_age":"Median Age","med_income":"Median Income","month_housing_costs":"Average Monthly Housing Cost","no_inet":"Percent with No Internet","pop_dens":"Population Density","satelite":"Percent with Satelite Internet","satelite_only":"Percent with Only Satelite Internet","smartphone_alone":"Percent with Only a Smartphone","tablet_alone":"Percent with Only a Tablet","white":"Percent White","work_outside_res_area":"Percent that Works Outside County"}];
 
