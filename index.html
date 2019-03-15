@@ -26,7 +26,13 @@
   <div id = "story-container"> <!--class="row row-fluid"-->
     <div class="right-wrapper col-sm-12 col-lg-9 order-12" id="graph">
       <div class="row" id="legend-wrap"></div>
-      <div class="row order-sm-12" id="map-wrap"></div>
+      <div class="row order-sm-12" id="map-wrap">
+          <div id="zoom-wrap">
+            <button onclick="zoomIn(0.75)">+</button>
+            <br>
+            <button onclick="zoomOut(0.75)">-</button>
+          </div>
+      </div>
     </div>
     <div class="left-wrapper col-sm-12 col-lg-3" id="story-content">
       <div class="title-content-sep" id = "section"></div>
