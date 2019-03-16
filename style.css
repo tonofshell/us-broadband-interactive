@@ -50,7 +50,50 @@ div .cover-page {
 
 }
 
-@media (min-width: 768px) {
+@media (min-width: 700px) {
+html {
+	font-size: 0.8rem;
+}
+div .cover-page {
+	background-image: linear-gradient(rgba(255, 215, 71, 0.25), rgba(255, 215, 71, 0.35), rgba(255, 255, 255, 1)), url("cover-image.jpg");
+}
+.cp-text-wrapper {
+	width: 600px;
+}
+.right-wrapper {
+	height: 100vh;
+}
+.left-wrapper {
+	width: auto;
+}
+.row {
+	width: auto;
+}
+	.section, .section-last {
+	display: flex;
+	justify-content: flex-start;
+	flex-direction: column;
+	align-content: flex-start;
+}
+.right-wrapper {
+	height: 100vh;
+	padding: 0;
+}
+
+#legend-wrap {
+	height: 12%;
+	margin: 20px;
+}
+
+#map-wrap {
+	background-color: white;
+	height: 88%;
+	max-height: 88%;
+	padding: 0;
+}
+}
+
+@media (min-width: 900px) {
 html {
 	font-size: 1.1rem;
 }
@@ -261,4 +304,19 @@ div .cover-page {
 }
 .title-content-sep {
 	height: 10%;
+}
+
+/*Adapted from: http://bl.ocks.org/d3noob/a22c42db65eb00d4e369*/
+div.tooltip {	
+    position: absolute;			
+    text-align: center;			
+/*    width: 60px;					
+    height: 28px;	*/				
+    padding: 5px;				
+    font-size: 12px;	
+	font-family: 'Pragati Narrow', sans-serif;
+    background: #A8A8A8;	
+    border: 0px;		
+    border-radius: 15px;			
+    pointer-events: none;
 }

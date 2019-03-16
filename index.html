@@ -8,6 +8,13 @@
 <link href="style.css" rel="stylesheet" type="text/css">
 <link href="https://fonts.googleapis.com/css?family=Contrail+One|News+Cycle:400,700|Pragati+Narrow:400,700&amp;subset=latin-ext" rel="stylesheet">
 <link rel="preload" href="cover-image.jpg" as="image">
+<script type="text/javascript">
+	// Forces page to reload from the top to keep a reload mid page from blanking the page while the map scripts load again
+	// From https://stackoverflow.com/questions/3664381/force-page-scroll-position-to-top-at-page-refresh-in-html
+	window.onbeforeunload = function () {
+  			window.scrollTo(0, 0);
+}
+</script>
 <script type="text/javascript" src="js/d3.min.js"></script>
 <script type="text/javascript" src="js/d3-legend.min.js"></script>
 <script type="text/javascript" src="js/jquery.min.js"></script>
@@ -24,7 +31,7 @@
     </div>
   </div>
   <div id = "story-container"> <!--class="row row-fluid"-->
-    <div class="right-wrapper col-sm-12 col-lg-9 order-12" id="graph">
+    <div class="right-wrapper col-sm-12 col-md-9 order-12" id="graph">
       <div class="row" id="legend-wrap"></div>
       <div class="row order-sm-12" id="map-wrap">
           <div id="zoom-wrap">
@@ -34,7 +41,7 @@
           </div>
       </div>
     </div>
-    <div class="left-wrapper col-sm-12 col-lg-3" id="story-content">
+    <div class="left-wrapper col-sm-12 col-md-3" id="story-content">
       <div class="title-content-sep" id = "section"></div>
       <div class="section">
         <div class="section-content">

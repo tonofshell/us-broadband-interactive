@@ -14,28 +14,25 @@ let getWidth = function(parentId) {
 }
 
 let zoomIn = function(factor) {
-	zoom = zoom + factor;
-	updateView();
+	zoomLevel = zoomLevel + factor;
+	console.log("zoomLevel: " + zoomLevel);
+	mapSvg.select("#svg-map").selectAll('path').transition(transInterval).call(zoom.scaleBy, factor);
 }
 
 let zoomOut = function(factor) {
-	newZoom = zoom - factor;
-	if (newZoom > 1){
-		zoom = zoom - factor;
-	} else {
-		zoom = 1;
-	}
-	updateView();
+	zoomLevel = zoomLevel - factor;
+	console.log("zoomLevel: " + zoomLevel);
+	mapSvg.select("#svg-map").selectAll('path').transition(transInterval).call(zoom.scaleBy, -factor);
 }
 
 let zoomReset = function() {
-	zoom = 1;
+	zoomLevel = 1;
 	updateView();
 }
 
 let mapPath = function(h, w) {
-	let hScale = h / 1100 * 1900 * zoom;
-	let wScale = w / 875 * 1200 * zoom;
+	let hScale = h / 1100 * 1900 * zoomLevel;
+	let wScale = w / 875 * 1200 * zoomLevel;
 	let centerH = h / 2;
 	let centerW = w / 2;
 
@@ -56,15 +53,19 @@ let mapPath = function(h, w) {
 }
 
 let updateMapSize = function(h, w) {
-	console.log("hello there");
-	console.log("dimensions(" + h + ", " + w + ", " + zoom +")");
+	console.log("dimensions(" + h + ", " + w + ", " + zoomLevel +")");
+	mapSvg.select("zoom-rect")
+    				.call(zoom.translateExtent([[ 0, 0 ], [ w, h]]));
+	
 	mapSvg.select("#svg-map").selectAll('path')
-		.transition(transInterval / 6)
-		.delay(function(d, i) { return i * 0.5; })
-		.ease(d3.easeElasticInOut)
+/*		.transition(transInterval / 10)
+		.delay(function(d, i) { return i * 0.3; })
+		.ease(d3.easeElasticInOut)*/
 		.attr("height", h)
 		.attr("width", w)
 		.attr('d', mapPath(h, w));
+	
+	
 }
 
 let updateLegendSize = function(h, w) {
@@ -143,7 +144,7 @@ let updateLegend = function(data, variable, parent, colorScale, svg, parentDiv, 
 		legend.attr("class", "update")
       		.attr("x", 1)
       		.style("fill-opacity", 1)
-    		 .transition()
+    		.transition()
 		  	.duration(transInterval)
       		.attr("transform", function(dBins) {
 			  return "translate(" + x(dBins.x0) + "," + (y(dBins.length) - 30) + ")"; })
@@ -192,6 +193,8 @@ let updateLegend = function(data, variable, parent, colorScale, svg, parentDiv, 
 }
 
 let changeMapVars = function(colorVar, alphaVar, scaleDefault) {
+	cVar = colorVar;
+	aVar = alphaVar;
 	dataPromise.then(function(d){
 		let dColorMin = d3.min(d.features, function(dSub) {return dSub.properties[colorVar]});
 		let dColorMax = d3.max(d.features, function(dSub) {return dSub.properties[colorVar]});
@@ -216,12 +219,12 @@ let changeMapVars = function(colorVar, alphaVar, scaleDefault) {
 
 		if (scaleDefault == "percent") {
 			newColorScale = d3.scaleQuantize().domain([0, 1]).range(["rgb(235, 80, 40)", "rgb(255, 120, 55)", "rgb(255, 215, 70)", "rgb(30, 210, 215)", "rgb(15, 160, 245)"]).unknown("#fff");
-			newAlphaScale = d3.scaleQuantize().domain([0, 1]).range([0.2, 0.4, 0.6, 0.8, 1]).unknown(0);
-			alphaLegendScale = d3.scaleQuantize().domain([0, 1]).range(["rgba(0, 0, 0, 0.2)", "rgba(0, 0, 0, 0.4)", "rgba(0, 0, 0, 0.6)", "rgba(0, 0, 0, 0.8)", "rgba(0, 0, 0, 1)"]).unknown(0);
+			newAlphaScale = d3.scaleQuantize().domain([0, 1]).range([0.25, 0.5, 0.75, 1]).unknown(0);
+			alphaLegendScale = d3.scaleQuantize().domain([0, 1]).range([ "rgb(191, 191, 191)", "rgb(128, 128, 128)", "rgb(64, 64, 64)", "rgb(0, 0, 0)"]).unknown(0);
 		} else {
 			newColorScale = d3.scaleQuantize().domain([dColorMin, dColorMax]).range(["rgb(235, 80, 40)", "rgb(255, 120, 55)", "rgb(255, 215, 70)", "rgb(30, 210, 215)", "rgb(15, 160, 245)"]).unknown("#fff");
-			newAlphaScale = d3.scaleQuantize().domain([dAlphaMin, dAlphaMax]).range([0.2, 0.4, 0.6, 0.8, 1]).unknown(0);
-			alphaLegendScale = d3.scaleQuantize().domain([dAlphaMin, dAlphaMax]).range(["rgba(0, 0, 0, 0.2)", "rgba(0, 0, 0, 0.4)", "rgba(0, 0, 0, 0.6)", "rgba(0, 0, 0, 0.8)", "rgba(0, 0, 0, 1)"]).unknown(0);
+			newAlphaScale = d3.scaleQuantize().domain([dAlphaMin, dAlphaMax]).range([0.25, 0.5, 0.75, 1]).unknown(0);
+			alphaLegendScale = d3.scaleQuantize().domain([dAlphaMin, dAlphaMax]).range(["rgb(191, 191, 191)", "rgb(128, 128, 128)", "rgb(64, 64, 64)", "rgb(0, 0, 0)"]).unknown(0);
 		}
 
 		/*console.log(newColorScale.thresholds())*/
@@ -247,8 +250,7 @@ let changeMapVars = function(colorVar, alphaVar, scaleDefault) {
 
 					let trimmedStr = "rgba" + color.substring(3)
 					let rebuiltStr = trimmedStr.substring(0, trimmedStr.length - 1) + ", " + alpha + ")"
-					return rebuiltStr;
-		});
+					return rebuiltStr;});
 
 		let colorLabels = newColorScale.thresholds();
 		colorLabels.push(dColorMax);
@@ -271,6 +273,10 @@ let changeMapVars = function(colorVar, alphaVar, scaleDefault) {
 	});
 }
 
+let zoomed = function() {
+  mapSvg.select("#svg-map").attr("transform", d3.event.transform);
+}
+
 let initBlankMap = function(dataProm) {
 	dataProm.then(function(geoData) {
 		//Check that data loaded
@@ -279,17 +285,44 @@ let initBlankMap = function(dataProm) {
 		} else {
 			console.log("Data loaded");
 			console.log(geoData);
-
-			// append paths with no data to SVG
+			
 			mapSvg.append("g")
-				.attr("id", "svg-map");
+					.attr("id", "svg-map")
+					.call(zoom.translateExtent([[ 0, 0 ], [ getWidth("map-wrap"), getHeight("map-wrap") ]]));
 
 			mapSvg.select("#svg-map").selectAll('path')
 				.data(geoData.features)
 				.enter()
 				.append('path')
 				.attr('d', mapPath(getHeight("map-wrap"), getWidth("map-wrap")))
-				.style('fill', "#5A5A5A");
+				.attr("GEOID", function(dSub){return dSub.properties["GEOID"]})
+				.style('fill', "#5A5A5A")
+				.on("mouseover", function(dSub) {
+					d3.select(this)
+					.transition()
+            		.style("stroke", "white")
+					.style("stroke-width", "3")
+					//from https://bl.ocks.org/saifulazfar/f2da589a3abbe639fee0996198ace301
+					let xPosition = (d3.mouse(this)[0] - 100);
+					let yPosition = (d3.mouse(this)[1] + 20);		
+					console.log("mouseover" + " " + xPosition + " " + yPosition)
+					d3.select("#map-tooltip").html(dSub.properties["subregion"] + "<br>" + dSub.properties[cVar] + "<br>" + dSub.properties[aVar])	
+						.transition()
+						.style("opacity", .9)
+						.style("left", xPosition + "px")		
+						.style("top", yPosition + "px");	
+					})		
+			.on("mouseout", function(dSub) {		
+				d3.select("#map-tooltip").transition()		
+					.duration(500)		
+					.style("opacity", 0);	
+				d3.select(this)
+					.transition()
+            		.style("stroke", "white")
+					.style("stroke-width", "0")
+			});
+    				
+
 
 			// append g elements for future legends
 			legendSvg.append("g")
@@ -320,10 +353,12 @@ let initBlankMap = function(dataProm) {
 const transInterval = 500;
 
 // Global Variables
-let zoom = 1;
+let zoomLevel = 1;
 let colorLegPos = 0.28;
 let alphaLegPos = (1 - colorLegPos);
 let legendWidth = 300;
+let cVar = "GEOID";
+let aVar = "GEOID";
 
 if (legendWidth > getWidth("container") * alphaLegPos / 2 ) {
 	colorLegPos = 0.25;
@@ -335,8 +370,18 @@ if (legendWidth > getWidth("container") * alphaLegPos / 2 ) {
 	legendWidth = 300;
 }
 
-const varNames = [{"avg_fam_inc":"Average Family Income","below_poverty":"Percent Below Poverty Line","broadband_any":"Percent with Broadband","broadband_wired":"Percent with Wired Broadband","broadband_wired_only":"Percent with Only Wired Broadband","cell_inet":"Percent with Cellular Internet","cell_inet_only":"Percent with Only Cellular Internet","desktop_alone":"Percent with Only a Desktop","dial_up_only":"Percent with Only Dial Up","employed":"Percent Employed","female":"Percent Female","med_age":"Median Age","med_income":"Median Income","month_housing_costs":"Average Monthly Housing Cost","no_inet":"Percent with No Internet","pop_dens":"Population Density","satelite":"Percent with Satelite Internet","satelite_only":"Percent with Only Satelite Internet","smartphone_alone":"Percent with Only a Smartphone","tablet_alone":"Percent with Only a Tablet","white":"Percent White","work_outside_res_area":"Percent that Works Outside County"}];
+let tooltipDiv = d3.select("#map-wrap").append("div")	
+    .attr("class", "tooltip")
+	.attr("id", "map-tooltip")
+    .style("opacity", 0);
 
+// from Murray, Scott. Interactive Data Visualization for the Web: An Introduction to Designing with D3 (pp. 300-301). O'Reilly Media. Kindle Edition. 
+let zoom = d3.zoom()
+             .scaleExtent([ 1.0, 5.0 ])
+             .translateExtent([[ 0, 0 ], [ getWidth("map-wrap"), getHeight("map-wrap") ]])
+             .on("zoom", zoomed);
+
+const varNames = [{"avg_fam_inc":"Average Family Income","below_poverty":"Percent Below Poverty Line","broadband_any":"Percent with Broadband","broadband_wired":"Percent with Wired Broadband","broadband_wired_only":"Percent with Only Wired Broadband","cell_inet":"Percent with Cellular Internet","cell_inet_only":"Percent with Only Cellular Internet","desktop_alone":"Percent with Only a Desktop","dial_up_only":"Percent with Only Dial Up","employed":"Percent Employed","female":"Percent Female","med_age":"Median Age","med_income":"Median Income","month_housing_costs":"Average Monthly Housing Cost","no_inet":"Percent with No Internet","pop_dens":"Population Density","satelite":"Percent with Satelite Internet","satelite_only":"Percent with Only Satelite Internet","smartphone_alone":"Percent with Only a Smartphone","tablet_alone":"Percent with Only a Tablet","white":"Percent White","work_outside_res_area":"Percent that Works Outside County"}];
 
 let mapSvg = d3.select('#map-wrap')
 	.append("svg")
@@ -352,6 +397,9 @@ let legendSvg = d3.select('#legend-wrap')
 	//Promise some data
 let dataPromise = d3.json("acs_geo_data_simp.geojson");
 
+init = false;
+initBlankMap(dataPromise);
+
 // Link the data to the visualiation
 // and draw initial elements on SVG
 
@@ -363,7 +411,10 @@ d3.graphScroll()
   	.on('active', function(i){
 		console.log(i + 'th section active');
 		if(i == 0) {
-			initBlankMap(dataPromise);
+			if	(init == false) {
+				console.log("Initialized Scrollytelling");
+				init = true;
+			}
 		}
 		if(i == 1) {
 			zoomReset();
