@@ -30,7 +30,7 @@ acs_17 = land_area %>% rename(GEOID = STCOU, land_area = LND110210D) %>% right_j
 unmodified_vars = c(1, 2, 3, 4, 22, 23, 24, 32, 35)
 acs_17_mod = acs_17[1:length(acs_17[[1]]) ,unmodified_vars] %>%
   bind_cols(data.frame(pop_dens = (acs_17$total_pop / acs_17[,2]))) %>% 
-  bind_cols(as_tibble(acs_17[, -unmodified_vars] / acs_17$total_pop)) %>% 
+  bind_cols(as_tibble(acs_17[, -unmodified_vars] / acs_17$total_pop * 100)) %>% 
   rename("pop_dens" = land_area1, "avg_fam_inc" = aggr_fam_inc) %>% st_as_sf()
 
 geo_js = acs_17_mod %>% geojson_json(group = "geometry", geometry = "polygon")
