@@ -43,7 +43,7 @@ geo_js %>% write_lines(here("Datasets", "acs_geo_data_simp.geojson"))
 
 
 var_names = read_excel(here("Datasets", "var_names.xlsx"))
-var_names %>% toJSON( )%>% write_lines(here("Datasets", "var_names.json"))
+var_names %>% toJSON( )%>% write_lines(here("var_names.json"))
 
 
 # find_n_of_int = function(data_set, var_name, lower, upper) {

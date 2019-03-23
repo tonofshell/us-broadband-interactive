@@ -262,8 +262,7 @@ let changeMapVars = function (colorVar, alphaVar, colorTransf, alphaTransf) {
             colorRange = ["rgb(235, 80, 40)", "rgb(15, 160, 245)"];
         }
         if (colorTransf.includes("reverse")) {
-            colorDomain = [colorDomain[1], colorDomain[0]];
-            console.log(colorDomain);
+            colorRange = colorRange.reverse()
         }
 
         let newColorScale = d3.scaleQuantize().domain(colorDomain).range(colorRange).unknown("#fff");
@@ -289,7 +288,8 @@ let changeMapVars = function (colorVar, alphaVar, colorTransf, alphaTransf) {
             alphaLegendRange = [intToGrey(alphaLegMinVal), intToGrey(0)];
         }
         if (alphaTransf.includes("reverse")) {
-            alphaDomain = [alphaDomain[1], alphaDomain[0]];
+            alphaRange = alphaRange.reverse()
+            alphaLegendRange = alphaLegendRange.reverse()
         }
 
         let newAlphaScale = d3.scaleQuantize().domain(alphaDomain).range(alphaRange).unknown(0);
@@ -450,31 +450,6 @@ let zoom = d3.zoom()
     .scaleExtent([1.0, 5.0])
     .translateExtent([[0, 0], [getWidth("map-wrap"), getHeight("map-wrap")]])
     .on("zoom", zoomed);
-/*
-const varNames = [{
-    "avg_fam_inc": "Average Family Income",
-    "below_poverty": "Percent Below Poverty Line",
-    "broadband_any": "Percent with Broadband",
-    "broadband_wired": "Percent with Wired Broadband",
-    "broadband_wired_only": "Percent with Only Wired Broadband",
-    "cell_inet": "Percent with Cellular Internet",
-    "cell_inet_only": "Percent with Only Cellular Internet",
-    "desktop_alone": "Percent with Only a Desktop",
-    "dial_up_only": "Percent with Only Dial Up",
-    "employed": "Percent Employed",
-    "female": "Percent Female",
-    "med_age": "Median Age",
-    "med_income": "Median Income",
-    "month_housing_costs": "Average Monthly Housing Cost",
-    "no_inet": "Percent with No Internet",
-    "pop_dens": "Population Density",
-    "satelite": "Percent with Satelite Internet",
-    "satelite_only": "Percent with Only Satelite Internet",
-    "smartphone_alone": "Percent with Only a Smartphone",
-    "tablet_alone": "Percent with Only a Tablet",
-    "white": "Percent White",
-    "work_outside_res_area": "Percent that Works Outside County"
-}];*/
 
 let varNames = [];
 
@@ -509,25 +484,45 @@ d3.graphScroll()
     .sections(d3.selectAll('#story-content > div'))
     .on('active', function (i) {
         console.log(i + 'th section active');
-        if (i == 0) {
-            if (init == false) {
+        if (i === 0) {
+            if (init === false) {
                 console.log("Initialized Scrollytelling");
                 init = true;
             }
         }
-        if (i == 1) {
+        if (i === 1) {
+            zoomReset();
+            changeMapVars("no_inet", "below_poverty", [], []);
+        }
+        if (i === 2) {
+            zoomReset();
+            changeMapVars("broadband_any", "below_poverty", [], []);
+        }
+        if (i === 3) {
             zoomReset();
             changeMapVars("no_inet", "employed", [], []);
         }
-        if (i == 2) {
+        if (i === 4) {
+            zoomReset();
+            changeMapVars("no_inet", "white", [], ["reverse"]);
+        }
+        if (i === 5) {
             zoomReset();
             changeMapVars("broadband_any", "native_amer", [], ["dummy"]);
         }
-        if (i == 3) {
+        if (i === 6) {
             zoomReset();
-            changeMapVars("smartphone_alone", "month_housing_costs", [], []);
+            changeMapVars("smartphone_alone", "med_income", [], []);
         }
-        if (i == 4) {
+        if (i === 7) {
+            zoomReset();
+            changeMapVars("no_inet", "month_housing_costs", [], []);
+        }
+        if (i === 8) {
+            zoomReset();
+            changeMapVars("desktop_alone", "med_age", [], []);
+        }
+        if (i === 9) {
             zoomReset();
             // select initial variables to show
             document.getElementById("colorSelect").value = "no_inet";

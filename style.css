@@ -247,7 +247,8 @@ html {
         background-color: white;
         height: 88%;
         max-height: 88%;
-        padding: 0;
+        padding: 15px;
+        margin: 0;
         position: relative;
     }
 }
@@ -369,5 +370,11 @@ div.tooltip {
 }
 
 .source {
+    text-align: right;
+    position: absolute;
+    right: 15px;
+    bottom: 15px;
+}
 
+.credits {
 }
