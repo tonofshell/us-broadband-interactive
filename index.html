@@ -28,17 +28,18 @@
         <div class="cp-text-wrapper">
             <h1 class="cp-title">Internet Access and Inequality</h1>
             <br>
-            <p class="cp-explanation">As the Internet has developed in America, so has a so called "digital divide".
-            More studies are finding that Americans of different socioeconomic backgrounds have greatly differing
-                abilities to use and access innovative technologies. This digital divide not only greatly exacerbates
-                inequality across the country, it feeds into itself as tech companies develop products to cater more
-            to the upper class and their own profit margins, than those that may benefit from technological advances
-            the most. As Internet access has become essential part of many American's modern everyday lives, elsewhere
-                in the country, large swaths of America are increasingly being left behind.</p>
+            <h4 class="cp-explanation">As the Internet has developed in America, so has a so called "digital
+                divide". Americans of contrasting socioeconomic backgrounds have greatly differing
+                abilities to use and access innovative technologies. This digital divide not only exacerbates
+                inequality across the country, it feeds into itself as well. Many tech companies continue to develop
+                products that cater more to the upper class and their own profit margins, than those that may benefit
+                from technological advances the most. As Internet access has become essential part of many Americans'
+                everyday lives, elsewhere in the country, large swaths of America are increasingly being left
+                behind.</h4>
         </div>
     </div>
     <div id="story-container"> <!--class="row row-fluid"-->
-        <div class="right-wrapper col-sm-12 col-md-9 order-12" id="graph">
+        <div class="right-wrapper col-12 col-md-9 order-12" id="graph">
             <div class="row" id="legend-wrap"></div>
             <div class="row order-sm-12" id="map-wrap">
                 <div id="zoom-wrap">
@@ -49,7 +50,7 @@
                 <div class="source"><span>US Census American Community Survey 2017</span></div>
             </div>
         </div>
-        <div class="left-wrapper col-sm-12 col-md-3" id="story-content">
+        <div class="left-wrapper col-12 col-md-3" id="story-content">
             <div class="title-content-sep" id="section"></div>
             <div class="section">
                 <div class="section-content">
@@ -85,7 +86,10 @@
                     </div>
                     <div class="row">
                         <div class="col-12">
-                            <h3>The FCC defines broadband Internet as having a minimum download speed of 25 mbps and
+                            <h3>The <a
+                                    href="https://www.fcc.gov/reports-research/reports/broadband-progress-reports/2018-broadband-deployment-report">FCC
+                                defines broadband Internet</a> as having a minimum download speed of 25 mbps
+                                and
                                 an upload speed of at least 3 mbps for fixed Internet services. Despite these
                                 conservative speeds, still large proportions of American counties do not meet these
                                 standards for Internet speeds. Counties with the worst broadband adoption
@@ -233,10 +237,11 @@
                                 <option value="smartphone_alone">smartphone_alone</option>
                                 <option value="tablet_alone">tablet_alone</option>
                             </select><br>
-                            <span style="display: none"><input type="checkbox" id="cPercent" value="cPercent" style="display: none"
+                            <span style="display: none"><input type="checkbox" id="cPercent" value="cPercent"
+                                                               style="display: none"
                                                                onchange="changeVars()">Percent<br></span>
-                            <input type="checkbox" id="cDummy" value="cDummy" onchange="changeVars()">Dummy<br>
-                            <input type="checkbox" id="cReverse" value="cReverse" onchange="changeVars()">Reverse<br>
+                            <input type="checkbox" class="check" id="cDummy" value="cDummy" onchange="changeVars()">Dummy<br>
+                            <input type="checkbox" class="check" id="cReverse" value="cReverse" onchange="changeVars()">Reverse<br>
                         </div>
                         <div class="col-6">
                             <h3>Demographic <br>
@@ -258,15 +263,16 @@
                             <span style="display: none"><input type="checkbox" id="aPercent" value="aPercent"
                                                                onchange="changeVars()">Percent
                             <br></span>
-                            <input type="checkbox" id="aDummy" value="aDummy" onchange="changeVars()">Dummy<br>
-                            <input type="checkbox" id="aReverse" value="aReverse" onchange="changeVars()">Reverse<br>
+                            <input type="checkbox" class="check" id="aDummy" value="aDummy" onchange="changeVars()">
+                            Dummy<br>
+                            <input type="checkbox" class="check" id="aReverse" value="aReverse" onchange="changeVars()">Reverse<br>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-12"><br>
-                            <h3>Let the social scientist in you run wild! Or just look at the pretty colors. The
+                            <h3>Let the social scientist inside of you run wild! Or just look at the pretty colors. The
                                 choice is up to you! Making a variable into a dummy variable will collapse the scale
-                            of that variable into only two categories, giving more contrast to extreme differences.
+                                of that variable into only two categories, giving more contrast to extreme differences.
                                 Reversing the variable's scale will switch which end of the color or opacity scale
                                 starts at the lower end of the scale.</h3>
                         </div>
@@ -274,14 +280,20 @@
                 </div>
             </div>
             <div class="credits">
-                <h1>Credits and Special Thanks</h1>
-                <h3> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam quam sem, consectetur et
-                    ante at, molestie tristique mauris. Cras vel ligula eleifend, malesuada elit nec, rutrum
-                    velit. Ut aliquam laoreet erat. Suspendisse eleifend dui sed diam interdum imperdiet.
-                    Suspendisse ultricies eleifend commodo. Quisque tempor pretium venenatis. Curabitur
-                    luctus, orci eu sollicitudin scelerisque, dui massa faucibus nunc, vitae rhoncus est
-                    mauris sed enim. Suspendisse sollicitudin leo id augue ullamcorper, non congue quam
-                    sagittis. Donec dapibus nisi at sagittis fermentum. </h3>
+                <h1>Credits</h1>
+                <h3>All data is from the <a
+                        href="https://www.census.gov/programs-surveys/acs/news/data-releases.html?#">US Census
+                    American Community Survey from 2017</a></h3>
+                <h3>Created by <a href="https://github.com/tonofshell/us-broadband-interactive">Adam Shelton</a></h3>
+                <h3>Histogram inspiration from <a
+                        href="https://bl.ocks.org/d3noob/96b74d0bd6d11427dd797892551a103c">d3noob</a></h3>
+                <h3>Update cycle inspiration from <a href="https://bl.ocks.org/mbostock/3808234">Mike Bostock</a></h3>
+                <h3>Code for reloading page from the beginning from <a
+                        href="https://stackoverflow.com/questions/3664381/force-page-scroll-position-to-top-at-page-refresh-in-html">ProfNandaa</a>
+                </h3>
+                <h3>And a lot of help from Scott Murray's <a href="https://alignedleft.com/work/d3-book">Interactive
+                    Data Visualization for the Web</a> and our esteemed instructor <a
+                        href="https://twitter.com/alexcengler">Alex Engler</a></h3>
             </div>
         </div>
     </div>

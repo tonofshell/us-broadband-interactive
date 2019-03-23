@@ -55,17 +55,22 @@ html {
     #map-wrap {
         height: 82%;
         max-height: 82%;
+        width: 100%;
     }
 
     #title {
-        font-size: 14pt;
+        font-size: 10pt;
+    }
+
+    #zoom-wrap {
+        display: none;
     }
 
 }
 
-@media (min-width: 700px) {
+@media (min-width: 768px) {
     html {
-        font-size: 0.6rem;
+        font-size: 0.5rem;
     }
 
     div .cover-page {
@@ -108,16 +113,26 @@ html {
     #map-wrap {
         background-color: white;
         height: 88%;
+        width: 100%;
         max-height: 88%;
         padding: 0;
     }
 
     #title {
-        font-size: 14pt;
+        font-size: 10pt;
+    }
+
+    #zoom-wrap {
+        display: flex;
+        position: absolute;
+        height: 100px;
+        width: 50px;
+        margin-left: 25px;
+        margin-top: 25px;
     }
 }
 
-@media (min-width: 900px) {
+@media (min-width: 992px) {
     html {
         font-size: 0.8rem;
     }
@@ -162,6 +177,7 @@ html {
     #map-wrap {
         background-color: white;
         height: 88%;
+        width: 100%;
         max-height: 88%;
         padding: 0;
     }
@@ -169,11 +185,20 @@ html {
     #title {
         font-size: 20pt;
     }
+
+    #zoom-wrap {
+        display: block;
+        position: absolute;
+        height: 100px;
+        width: 50px;
+        margin-left: 25px;
+        margin-top: 25px;
+    }
 }
 
 @media (min-width: 1200px) {
     html {
-        font-size: 1.3rem;
+        font-size: 0.95rem;
     }
 
     div .cover-page {
@@ -212,12 +237,22 @@ html {
     #map-wrap {
         background-color: white;
         height: 88%;
+        width: 100%;
         max-height: 88%;
         padding: 0;
     }
 
     #title {
         font-size: 20pt;
+    }
+
+    #zoom-wrap {
+        display: block;
+        position: absolute;
+        height: 100px;
+        width: 50px;
+        margin-left: 25px;
+        margin-top: 25px;
     }
 }
 
@@ -262,6 +297,7 @@ html {
     #map-wrap {
         background-color: white;
         height: 88%;
+        width: 100%;
         max-height: 88%;
         padding: 15px;
         margin: 0;
@@ -270,6 +306,15 @@ html {
 
     #title {
         font-size: 20pt;
+    }
+
+    #zoom-wrap {
+        display: block;
+        position: absolute;
+        height: 100px;
+        width: 50px;
+        margin-left: 25px;
+        margin-top: 25px;
     }
 }
 
@@ -285,7 +330,7 @@ body {
 }
 
 h1 {
-    font-family: "News Cycle";
+    font-family: "News Cycle", serif;
     font-weight: 700;
 }
 
@@ -324,7 +369,7 @@ div .cover-page {
 .cp-title {
     margin: auto;
     font-weight: 700;
-    font-family: "News Cycle";
+    font-family: "News Cycle", serif;
     color: white;
     text-shadow: 5px 3px 5px rgba(0, 0, 0, 0.3);
 }
@@ -385,10 +430,18 @@ div.tooltip {
     pointer-events: none;
 }
 
+.check {
+    height: 30px;
+    width: 30px;
+    margin-right: 5px;
+    margin-top: 5px;
+    margin-bottom: 0;
+}
+
 .source {
     text-align: right;
     position: absolute;
-    right: 15px;
+    right: 40px;
     bottom: 15px;
 }
 

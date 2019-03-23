@@ -15,7 +15,7 @@ let getWidth = function (parentId) {
 
 let zoomIn = function (factor) {
     temp = zoomLevel + factor;
-    if (temp < zoomUpper)  {
+    if (temp < zoomUpper) {
         zoomLevel = temp;
     } else {
         zoomLevel = zoomUpper;
@@ -70,25 +70,25 @@ let mapPath = function (h, w) {
 
 let updateMapSize = function (h, w) {
     // console.log("dimensions(" + h + ", " + w + ", " + zoomLevel + ")");
-    mapSvg.select("zoom-rect")
-        .call(zoom.translateExtent([[0, 0], [w, h]]));
+    /*mapSvg.select("zoom-rect")
+        .call(zoom.translateExtent([[0, 0], [w, h]]));*/
+    mapSvg.attr("height", h)
+        .attr("width", w);
+
 
     mapSvg.select("#svg-map").selectAll('path')
-    /*		.transition(transInterval / 10)
-            .delay(function(d, i) { return i * 0.3; })
-            .ease(d3.easeElasticInOut)*/
-        .attr("height", h)
-        .attr("width", w)
-        .attr('d', mapPath(h, w));
+        .attr('d', mapPath(h, w))
+        .call(zoom.translateExtent([[0, 0], [w, h]]));
+    ;
 
 
 };
 
 let updateLegendSize = function (h, w) {
-    if (legendWidth > getWidth("container") * alphaLegPos / 2) {
+    if (legendWidth > getWidth("legend-wrap") * alphaLegPos / 2) {
         colorLegPos = 0.25;
         alphaLegPos = (1 - colorLegPos);
-        legendWidth = getWidth("container") * alphaLegPos / 2.2
+        legendWidth = getWidth("legend-wrap") * alphaLegPos / 2.2
     } else {
         colorLegPos = 0.28;
         alphaLegPos = (1 - colorLegPos);
@@ -104,6 +104,8 @@ let updateLegendSize = function (h, w) {
         .attr("width", w)
         .select("#alpha-legend")
         .attr("transform", "translate(" + ((w * alphaLegPos) - (legendWidth / 2)) + ", " + 0 + ")");
+
+    changeMapVars(cVar, aVar, cTrans, aTrans);
 };
 
 let updateView = function () {
@@ -249,6 +251,8 @@ let updateLegend = function (data, variable, parent, colorScale, svg, parentDiv,
 let changeMapVars = function (colorVar, alphaVar, colorTransf, alphaTransf) {
     cVar = colorVar;
     aVar = alphaVar;
+    cTrans = colorTransf;
+    aTrans = alphaTransf;
     dataPromise.then(function (d) {
         let dColorMin = d3.min(d.features, function (dSub) {
             return dSub.properties[colorVar]
@@ -342,7 +346,7 @@ let changeMapVars = function (colorVar, alphaVar, colorTransf, alphaTransf) {
         colorLabels = colorLabels.map(function (each_element) {
             return Number(each_element.toFixed(2));
         });
-        	console.log(colorLabels);
+        //console.log(colorLabels);
 
         let alphaLabels = newAlphaScale.thresholds();
         alphaLabels.unshift(dAlphaMin);
@@ -350,7 +354,7 @@ let changeMapVars = function (colorVar, alphaVar, colorTransf, alphaTransf) {
         alphaLabels = alphaLabels.map(function (each_element) {
             return Number(each_element.toFixed(2));
         });
-        	console.log(alphaLabels);
+        //console.log(alphaLabels);
 
         updateLegend(d, colorVar, "#color-legend", newColorScale, legendSvg, "legend-wrap", dColorMin, dColorMax, colorLabels);
 
@@ -370,7 +374,7 @@ let initBlankMap = function (dataProm) {
             /*console.log("Error loading data");*/
         } else {
             /*console.log("Data loaded");*/
-           /* console.log(geoData);*/
+            /* console.log(geoData);*/
 
             mapSvg.append("g")
                 .attr("id", "svg-map")
@@ -448,6 +452,8 @@ let alphaLegPos = (1 - colorLegPos);
 let legendWidth = 280;
 let cVar = "GEOID";
 let aVar = "GEOID";
+let cTrans = [];
+let aTrans = [];
 
 if (legendWidth > getWidth("container") * alphaLegPos / 2) {
     colorLegPos = 0.25;
