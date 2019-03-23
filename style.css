@@ -8,7 +8,7 @@ html {
 
 @media (min-width: 300px) {
     html {
-        font-size: 0.9rem;
+        font-size: 0.7rem;
     }
 
     .right-wrapper {
@@ -57,9 +57,67 @@ html {
         max-height: 82%;
     }
 
+    #title {
+        font-size: 14pt;
+    }
+
 }
 
 @media (min-width: 700px) {
+    html {
+        font-size: 0.6rem;
+    }
+
+    div .cover-page {
+        background-image: linear-gradient(rgba(255, 215, 71, 0.25), rgba(255, 215, 71, 0.35), rgba(255, 255, 255, 1)), url("cover-image.jpg");
+    }
+
+    .cp-text-wrapper {
+        width: 600px;
+    }
+
+    .right-wrapper {
+        height: 100vh;
+    }
+
+    .left-wrapper {
+        width: auto;
+    }
+
+    .row {
+        width: auto;
+    }
+
+    .section, .section-last {
+        display: flex;
+        justify-content: flex-start;
+        flex-direction: column;
+        align-content: flex-start;
+    }
+
+    .right-wrapper {
+        height: 100vh;
+        padding: 0;
+    }
+
+    #legend-wrap {
+        height: 12%;
+        margin: 20px;
+    }
+
+    #map-wrap {
+        background-color: white;
+        height: 88%;
+        max-height: 88%;
+        padding: 0;
+    }
+
+    #title {
+        font-size: 14pt;
+    }
+}
+
+@media (min-width: 900px) {
     html {
         font-size: 0.8rem;
     }
@@ -107,55 +165,9 @@ html {
         max-height: 88%;
         padding: 0;
     }
-}
 
-@media (min-width: 900px) {
-    html {
-        font-size: 1.1rem;
-    }
-
-    div .cover-page {
-        background-image: linear-gradient(rgba(255, 215, 71, 0.25), rgba(255, 215, 71, 0.35), rgba(255, 255, 255, 1)), url("cover-image.jpg");
-    }
-
-    .cp-text-wrapper {
-        width: 600px;
-    }
-
-    .right-wrapper {
-        height: 100vh;
-    }
-
-    .left-wrapper {
-        width: auto;
-    }
-
-    .row {
-        width: auto;
-    }
-
-    .section, .section-last {
-        display: flex;
-        justify-content: flex-start;
-        flex-direction: column;
-        align-content: flex-start;
-    }
-
-    .right-wrapper {
-        height: 100vh;
-        padding: 0;
-    }
-
-    #legend-wrap {
-        height: 12%;
-        margin: 20px;
-    }
-
-    #map-wrap {
-        background-color: white;
-        height: 88%;
-        max-height: 88%;
-        padding: 0;
+    #title {
+        font-size: 20pt;
     }
 }
 
@@ -202,6 +214,10 @@ html {
         height: 88%;
         max-height: 88%;
         padding: 0;
+    }
+
+    #title {
+        font-size: 20pt;
     }
 }
 
@@ -251,11 +267,15 @@ html {
         margin: 0;
         position: relative;
     }
+
+    #title {
+        font-size: 20pt;
+    }
 }
 
 
 body {
-    min-width: 500px;
+    min-width: 400px;
     height: 100vh;
     width: 100vw;
     min-height: 100vh;
@@ -336,10 +356,6 @@ div .cover-page {
     font-weight: 700;
     width: 40px;
     height: 40px;
-}
-
-#title {
-    font-size: 20pt;
 }
 
 .section {

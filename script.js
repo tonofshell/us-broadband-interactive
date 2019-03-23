@@ -14,20 +14,36 @@ let getWidth = function (parentId) {
 };
 
 let zoomIn = function (factor) {
-    zoomLevel = zoomLevel + factor;
-    console.log("zoomLevel: " + zoomLevel);
-    mapSvg.select("#svg-map").selectAll('path').transition(transInterval).call(zoom.scaleBy, factor);
+    temp = zoomLevel + factor;
+    if (temp < zoomUpper)  {
+        zoomLevel = temp;
+    } else {
+        zoomLevel = zoomUpper;
+    }
+    //console.log("zoomLevel: " + zoomLevel);
+    mapSvg.transition()
+        .duration(transInterval / 3)
+        .call(zoom.scaleTo, zoomLevel);
 };
 
 let zoomOut = function (factor) {
-    zoomLevel = zoomLevel - factor;
-    console.log("zoomLevel: " + zoomLevel);
-    mapSvg.select("#svg-map").selectAll('path').transition(transInterval).call(zoom.scaleBy, -factor);
+    temp = zoomLevel - factor;
+    if (temp > defaultZoom) {
+        zoomLevel = temp;
+    } else {
+        zoomLevel = defaultZoom;
+    }
+    // console.log("zoomLevel: " + zoomLevel);
+    mapSvg.transition()
+        .duration(transInterval / 3)
+        .call(zoom.scaleTo, zoomLevel);
 };
 
 let zoomReset = function () {
-    zoomLevel = 1;
-    updateView();
+    zoomLevel = defaultZoom;
+    mapSvg.transition()
+        .duration(transInterval)
+        .call(zoom.scaleTo, zoomLevel);
 };
 
 let mapPath = function (h, w) {
@@ -36,9 +52,9 @@ let mapPath = function (h, w) {
     let centerH = h / 2;
     let centerW = w / 2;
 
-    console.log(centerW + " " + centerH);
-    console.log("scale(" + wScale + ", " + hScale + ")");
-    console.log("zoom(" + zoom + ")");
+    // console.log(centerW + " " + centerH);
+    // console.log("scale(" + wScale + ", " + hScale + ")");
+    // console.log("zoom(" + zoom + ")");
 
     let finScale = 0;
     if (hScale < wScale) {
@@ -47,13 +63,13 @@ let mapPath = function (h, w) {
         finScale = wScale
     }
 
-    console.log("Map scale: " + finScale);
+    // console.log("Map scale: " + finScale);
     let mapProj = d3.geoAlbersUsa().scale([finScale]).translate([centerW, centerH]);
     return d3.geoPath().projection(mapProj);
 };
 
 let updateMapSize = function (h, w) {
-    console.log("dimensions(" + h + ", " + w + ", " + zoomLevel + ")");
+    // console.log("dimensions(" + h + ", " + w + ", " + zoomLevel + ")");
     mapSvg.select("zoom-rect")
         .call(zoom.translateExtent([[0, 0], [w, h]]));
 
@@ -100,7 +116,7 @@ let changeVars = function () {
     let cValue = cSelector[cSelector.selectedIndex].value;
     let aSelector = document.getElementById("alphaSelect");
     let aValue = aSelector[aSelector.selectedIndex].value;
-    console.log(cValue + " " + aValue);
+    // console.log(cValue + " " + aValue);
     cTrans = [];
     if (document.getElementById("cPercent").checked) {
         cTrans.push("percent")
@@ -126,7 +142,7 @@ let changeVars = function () {
     changeMapVars(cValue, aValue, cTrans, aTrans);
 };
 
-let updateLegend = function (data, variable, parent, colorScale, svg, parentDiv, varMin, varMax) {
+let updateLegend = function (data, variable, parent, colorScale, svg, parentDiv, varMin, varMax, tickVals) {
     let legendH = getHeight(parentDiv);
     let legendW = legendWidth;
 
@@ -143,10 +159,10 @@ let updateLegend = function (data, variable, parent, colorScale, svg, parentDiv,
             return dSub.properties[variable]
         })
         .domain(x.domain())
-        .thresholds(x.ticks());
+        .thresholds(x.ticks(15));
 
     let bins = hist(data.features);
-    console.log(bins);
+    // console.log(bins);
 
     // Scale the range of the data in the y domain
     y.domain([0, d3.max(bins, function (dSub) {
@@ -218,7 +234,7 @@ let updateLegend = function (data, variable, parent, colorScale, svg, parentDiv,
         .transition()
         .duration(transInterval)
         .attr("transform", "translate(0," + (legendH - 20) + ")")
-        .call(d3.axisBottom(x));
+        .call(d3.axisBottom(x).tickValues(tickVals));
 
     /*mapSvg.select("#color-legend")
         .call(colorLegend);*/
@@ -248,7 +264,7 @@ let changeMapVars = function (colorVar, alphaVar, colorTransf, alphaTransf) {
             return dSub.properties[alphaVar]
         });
 
-        console.log(colorVar + ": range(" + dColorMin + ", " + dColorMax + ")");
+        // console.log(colorVar + ": range(" + dColorMin + ", " + dColorMax + ")");
 
         // define some scale variables
 
@@ -275,15 +291,14 @@ let changeMapVars = function (colorVar, alphaVar, colorTransf, alphaTransf) {
         let alphaLegMinVal = 255 - (alphaMinVal * 255);
         let alphaDomain = [dAlphaMin, dAlphaMax];
         let alphaRange = [alphaMinVal, (1 - alphaMinVal) / 3 + alphaMinVal, 2 * (1 - alphaMinVal) / 3 + alphaMinVal, 1];
-        console.log(alphaRange);
+        // console.log(alphaRange);
         let alphaLegendRange = [intToGrey(alphaLegMinVal), intToGrey((0 - alphaLegMinVal) / 3 + alphaLegMinVal), intToGrey(2 * (0 - alphaLegMinVal) / 3 + alphaLegMinVal), intToGrey(0)];
-        console.log(alphaLegendRange);
+        // console.log(alphaLegendRange);
 
         if (alphaTransf.includes("percent")) {
             alphaDomain = [0, 1];
         }
         if (alphaTransf.includes("dummy")) {
-            console.log("dummy")
             alphaRange = [alphaMinVal, 1];
             alphaLegendRange = [intToGrey(alphaLegMinVal), intToGrey(0)];
         }
@@ -322,22 +337,24 @@ let changeMapVars = function (colorVar, alphaVar, colorTransf, alphaTransf) {
             });
 
         let colorLabels = newColorScale.thresholds();
+        colorLabels.unshift(dColorMin);
         colorLabels.push(dColorMax);
         colorLabels = colorLabels.map(function (each_element) {
             return Number(each_element.toFixed(2));
         });
-        /*		console.log(colorLabels);*/
+        	console.log(colorLabels);
 
         let alphaLabels = newAlphaScale.thresholds();
+        alphaLabels.unshift(dAlphaMin);
         alphaLabels.push(dAlphaMax);
         alphaLabels = alphaLabels.map(function (each_element) {
             return Number(each_element.toFixed(2));
         });
-        /*		console.log(alphaLabels);*/
+        	console.log(alphaLabels);
 
-        updateLegend(d, colorVar, "#color-legend", newColorScale, legendSvg, "legend-wrap", dColorMin, dColorMax);
+        updateLegend(d, colorVar, "#color-legend", newColorScale, legendSvg, "legend-wrap", dColorMin, dColorMax, colorLabels);
 
-        updateLegend(d, alphaVar, "#alpha-legend", alphaLegendScale, legendSvg, "legend-wrap", dAlphaMin, dAlphaMax);
+        updateLegend(d, alphaVar, "#alpha-legend", alphaLegendScale, legendSvg, "legend-wrap", dAlphaMin, dAlphaMax, alphaLabels);
 
     });
 };
@@ -350,10 +367,10 @@ let initBlankMap = function (dataProm) {
     dataProm.then(function (geoData) {
         //Check that data loaded
         if (geoData == null) {
-            console.log("Error loading data");
+            /*console.log("Error loading data");*/
         } else {
-            console.log("Data loaded");
-            console.log(geoData);
+            /*console.log("Data loaded");*/
+           /* console.log(geoData);*/
 
             mapSvg.append("g")
                 .attr("id", "svg-map")
@@ -376,7 +393,7 @@ let initBlankMap = function (dataProm) {
                     //from https://bl.ocks.org/saifulazfar/f2da589a3abbe639fee0996198ace301
                     let xPosition = (d3.mouse(this)[0] - 100);
                     let yPosition = (d3.mouse(this)[1] + 20);
-                    console.log("mouseover" + " " + xPosition + " " + yPosition);
+                    // console.log("mouseover" + " " + xPosition + " " + yPosition);
                     d3.select("#map-tooltip").html(dSub.properties["subregion"] + "<br>" + dSub.properties[cVar] + "<br>" + dSub.properties[aVar])
                         .transition()
                         .style("opacity", .9)
@@ -421,12 +438,14 @@ let initBlankMap = function (dataProm) {
 
 // Global Constants
 const transInterval = 500;
+const defaultZoom = 1;
+const zoomUpper = 7;
 
 // Global Variables
-let zoomLevel = 1;
-let colorLegPos = 0.28;
+let zoomLevel = defaultZoom;
+let colorLegPos = 0.24;
 let alphaLegPos = (1 - colorLegPos);
-let legendWidth = 300;
+let legendWidth = 280;
 let cVar = "GEOID";
 let aVar = "GEOID";
 
@@ -447,7 +466,7 @@ let tooltipDiv = d3.select("#map-wrap").append("div")
 
 // from Murray, Scott. Interactive Data Visualization for the Web: An Introduction to Designing with D3 (pp. 300-301). O'Reilly Media. Kindle Edition. 
 let zoom = d3.zoom()
-    .scaleExtent([1.0, 5.0])
+    .scaleExtent([defaultZoom, zoomUpper])
     .translateExtent([[0, 0], [getWidth("map-wrap"), getHeight("map-wrap")]])
     .on("zoom", zoomed);
 
@@ -483,10 +502,10 @@ d3.graphScroll()
     .container(d3.select('#story-container'))
     .sections(d3.selectAll('#story-content > div'))
     .on('active', function (i) {
-        console.log(i + 'th section active');
+        // console.log(i + 'th section active');
         if (i === 0) {
             if (init === false) {
-                console.log("Initialized Scrollytelling");
+                // console.log("Initialized Scrollytelling");
                 init = true;
             }
         }
