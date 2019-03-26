@@ -79,7 +79,6 @@ let updateMapSize = function (h, w) {
     mapSvg.select("#svg-map").selectAll('path')
         .attr('d', mapPath(h, w))
         .call(zoom.translateExtent([[0, 0], [w, h]]));
-    ;
 
 
 };
@@ -455,10 +454,10 @@ let aVar = "GEOID";
 let cTrans = [];
 let aTrans = [];
 
-if (legendWidth > getWidth("container") * alphaLegPos / 2) {
+if (legendWidth > getWidth("legend-wrap") * alphaLegPos / 2) {
     colorLegPos = 0.25;
     alphaLegPos = (1 - colorLegPos);
-    legendWidth = getWidth("container") * alphaLegPos / 2.2
+    legendWidth = getWidth("legend-wrap") * alphaLegPos / 2.2
 } else {
     colorLegPos = 0.28;
     alphaLegPos = (1 - colorLegPos);
