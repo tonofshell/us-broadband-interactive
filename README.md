@@ -1,6 +1,6 @@
 # Internet Access and Inequality
 
-This projects investigates the relationships between Internet access and demographic factors in the US using [D3.js](https://d3js.org/) to visualize county-level data from the 2017 [American Community Survey](https://www.census.gov/programs-surveys/acs).
+This projects investigates the relationships between Internet access and demographic factors in the US using [D3.js](https://d3js.org/) to visualize county-level data from the 2017 [American Community Survey](https://www.census.gov/programs-surveys/acs). It builds on the work completed with static visualizations in [Visual Analysis of US Broadband Disparities](https://github.com/tonofshell/us-broadband).
 
 ### View the project [here!](https://tonofshell.me/us-broadband-interactive)
 
